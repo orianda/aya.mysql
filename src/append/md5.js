@@ -18,7 +18,9 @@ function append(item, data, salt, bounces) {
         } else if (bounces > 0) {
             return append(item, data, salt, bounces - 1);
         } else {
-            return Promise.reject(new Error('out of bounce'));
+            return Promise.reject({
+                message: 'out of bounce'
+            });
         }
     });
 }

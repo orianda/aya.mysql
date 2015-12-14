@@ -52,7 +52,6 @@ describe('append', function () {
         promise = append(item, data);
         expect(promise).to.be.instanceOf(Promise);
         return expect(promise).to.eventually.be.rejected.then(function (result) {
-            expect(result).to.be.instanceOf(Error);
             expect(result.message).to.equal('out of bounce');
             expect(item.add.args.length).to.equal(32);
         });
@@ -66,7 +65,6 @@ describe('append', function () {
         promise = append(item, data, 10);
         expect(promise).to.be.instanceOf(Promise);
         return expect(promise).to.eventually.be.rejected.then(function (result) {
-            expect(result).to.be.instanceOf(Error);
             expect(result.message).to.equal('out of bounce');
             expect(item.add.args.length).to.equal(10);
         });
