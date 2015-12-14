@@ -44,6 +44,23 @@ describe('append', function () {
         });
     });
 
+    it('should have no id', function () {
+        var promise;
+        item.add = sinon.spy(function () {
+            return Promise.resolve(0);
+        });
+        promise = append(item, data);
+        expect(promise).to.be.instanceOf(Promise);
+        return expect(promise).to.eventually.be.fulfilled.then(function (result) {
+            expect(result).to.be.undefined;
+            expect(item.add.calledOnce).to.equal(true);
+            expect(item.add.args[0].length).to.equal(2);
+            expect(item.add.args[0][0]).to.be.string;
+            expect(item.add.args[0][0].length).to.equal(32);
+            expect(item.add.args[0][1]).to.equal(data);
+        });
+    });
+
     it('should bounce 10 <default> times', function () {
         var promise;
         item.add = sinon.spy(function () {

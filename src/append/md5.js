@@ -10,8 +10,8 @@ var crypto = require('crypto');
  */
 function append(item, data, salt, bounces) {
     var id = crypto.createHash('md5').update(salt + bounces).digest('hex');
-    return item.add(id, data).then(function () {
-        return id;
+    return item.add(id, data).then(function (added) {
+        return added ? id : undefined;
     }, function (error) {
         if (error.code !== 'ER_DUP_ENTRY') {
             return Promise.reject(error);
