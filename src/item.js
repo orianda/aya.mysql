@@ -35,7 +35,7 @@ class Item {
      * @returns {Promise}
      */
     get(id) {
-        return this.list.select({
+        return this.list.select(null, {
             [this.id]: id
         }, 1).then(function (result) {
             return result.shift();

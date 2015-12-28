@@ -59,7 +59,7 @@ describe('item', function () {
         return expect(promise).to.eventually.be.fulfilled.then(function (result) {
             expect(result).to.equal(entry);
             expect(list.select.calledOnce).to.equal(true);
-            expect(list.select.calledWith({id: 123}, 1)).to.equal(true);
+            expect(list.select.calledWith(null, {id: 123}, 1)).to.equal(true);
         });
     });
 
@@ -73,7 +73,7 @@ describe('item', function () {
         return expect(promise).to.eventually.be.fulfilled.then(function (result) {
             expect(result).to.equal(undefined);
             expect(list.select.calledOnce).to.equal(true);
-            expect(list.select.calledWith({id: 123}, 1)).to.equal(true);
+            expect(list.select.calledWith(null, {id: 123}, 1)).to.equal(true);
         });
     });
 
