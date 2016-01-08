@@ -11,13 +11,13 @@ var querylize = require('aya.mysql.querylizer');
  */
 function submit(mysql, query, params) {
     return mysql().then(function (connection) {
-
-        function release(arg) {
+        return connection.promisify('query', query, params).then(function (result) {
             connection.release();
-            return arg;
-        }
-
-        return connection.promisify('query', query, params).then(release, release);
+            return result;
+        }, function (error) {
+            connection.release();
+            return Promise.reject(error);
+        });
     });
 }
 
