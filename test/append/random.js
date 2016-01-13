@@ -3,11 +3,11 @@
 var chai = require('chai'),
     expect = chai.expect,
     sinon = require('sinon'),
-    append = require('../../src/append/md5');
+    append = require('../../src/append/random');
 
 chai.use(require('chai-as-promised'));
 
-describe('append md5', function () {
+describe.only('append random', function () {
     var data = {name: 'value'},
         item = {};
 
@@ -21,8 +21,8 @@ describe('append md5', function () {
         return expect(promise).to.eventually.be.fulfilled.then(function (result) {
             expect(result).to.be.a('string');
             expect(result.length).to.equal(32);
-            expect(item.add.calledOnce).to.equal(true);
-            expect(item.add.calledWith(result, data)).to.equal(true);
+            expect(item.add.args.length).to.equal(1);
+            expect(item.add.args[0]).to.deep.equal([result, data]);
         });
     });
 
@@ -36,7 +36,7 @@ describe('append md5', function () {
         expect(promise).to.be.instanceOf(Promise);
         return expect(promise).to.eventually.be.rejected.then(function (result) {
             expect(result).to.equal(error);
-            expect(item.add.calledOnce).to.equal(true);
+            expect(item.add.args.length).to.equal(1);
             expect(item.add.args[0].length).to.equal(2);
             expect(item.add.args[0][0]).to.be.a('string');
             expect(item.add.args[0][0].length).to.equal(32);
@@ -53,7 +53,7 @@ describe('append md5', function () {
         expect(promise).to.be.instanceOf(Promise);
         return expect(promise).to.eventually.be.fulfilled.then(function (result) {
             expect(result).to.be.an('undefined');
-            expect(item.add.calledOnce).to.equal(true);
+            expect(item.add.args.length).to.equal(1);
             expect(item.add.args[0].length).to.equal(2);
             expect(item.add.args[0][0]).to.be.a('string');
             expect(item.add.args[0][0].length).to.equal(32);
@@ -61,7 +61,22 @@ describe('append md5', function () {
         });
     });
 
-    it('should bounce 10 <default> times', function () {
+    it('should have custom key length', function () {
+        var promise;
+        item.add = sinon.spy(function (id) {
+            return Promise.resolve(id);
+        });
+        promise = append(item, data, 3);
+        expect(promise).to.be.instanceOf(Promise);
+        return expect(promise).to.eventually.be.fulfilled.then(function (result) {
+            expect(result).to.be.an('string');
+            expect(result.length).to.equal(3);
+            expect(item.add.args.length).to.equal(1);
+            expect(item.add.args[0]).to.deep.equal([result,data]);
+        });
+    });
+
+    it('should bounce <default> times', function () {
         var promise;
         item.add = sinon.spy(function () {
             return Promise.reject({code: 'ER_DUP_ENTRY'});
@@ -69,7 +84,7 @@ describe('append md5', function () {
         promise = append(item, data);
         expect(promise).to.be.instanceOf(Promise);
         return expect(promise).to.eventually.be.rejected.then(function (result) {
-            expect(result.message).to.equal('out of bounce');
+            expect(result).to.deep.equal({message: 'out of bounce'});
             expect(item.add.args.length).to.equal(32);
         });
     });
@@ -79,10 +94,10 @@ describe('append md5', function () {
         item.add = sinon.spy(function () {
             return Promise.reject({code: 'ER_DUP_ENTRY'});
         });
-        promise = append(item, data, 10);
+        promise = append(item, data, 10, 10);
         expect(promise).to.be.instanceOf(Promise);
         return expect(promise).to.eventually.be.rejected.then(function (result) {
-            expect(result.message).to.equal('out of bounce');
+            expect(result).to.deep.equal({message: 'out of bounce'});
             expect(item.add.args.length).to.equal(10);
         });
     });

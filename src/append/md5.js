@@ -1,29 +1,7 @@
-var crypto = require('crypto');
+'use strict';
 
-/**
- * Append entry to table
- * @param {Item} item
- * @param {Object} data
- * @param {string} salt
- * @param {number} bounces
- * @returns {Promise}
- */
-function append(item, data, salt, bounces) {
-    var id = crypto.createHash('md5').update(salt + bounces).digest('hex');
-    return item.add(id, data).then(function (added) {
-        return added ? id : undefined;
-    }, function (error) {
-        if (error.code !== 'ER_DUP_ENTRY') {
-            return Promise.reject(error);
-        } else if (bounces > 0) {
-            return append(item, data, salt, bounces - 1);
-        } else {
-            return Promise.reject({
-                message: 'out of bounce'
-            });
-        }
-    });
-}
+var crypto = require('crypto'),
+    append = require('../append');
 
 /**
  * Append data and return id
@@ -35,6 +13,7 @@ function append(item, data, salt, bounces) {
 module.exports = function (item, data, bounces) {
     var date = new Date(),
         salt = date.getTime() + '.' + date.getMilliseconds() + ':';
-    bounces = bounces > 0 ? bounces : 32;
-    return append(item, data, salt, bounces - 1);
+    return append(item, data, function (bounces) {
+        return crypto.createHash('md5').update(salt + bounces).digest('hex');
+    }, bounces);
 };
