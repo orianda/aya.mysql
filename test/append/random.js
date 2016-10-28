@@ -72,7 +72,26 @@ describe.only('append random', function () {
             expect(result).to.be.an('string');
             expect(result.length).to.equal(3);
             expect(item.add.args.length).to.equal(1);
-            expect(item.add.args[0]).to.deep.equal([result,data]);
+            expect(item.add.args[0]).to.deep.equal([result, data]);
+        });
+    });
+
+    it('should have only charset characters', function () {
+        var promise;
+        item.add = sinon.spy(function (id) {
+            return Promise.resolve(id);
+        });
+        promise = append(item, data, {
+            length: 123456,
+            charset: 'hex'
+        });
+        expect(promise).to.be.instanceOf(Promise);
+        return expect(promise).to.eventually.be.fulfilled.then(function (result) {
+            expect(result).to.be.an('string');
+            expect(result.length).to.equal(123456);
+            expect(result).to.matches(/^[0-9a-f]+$/);
+            expect(item.add.args.length).to.equal(1);
+            expect(item.add.args[0]).to.deep.equal([result, data]);
         });
     });
 
