@@ -1,7 +1,5 @@
-'use strict';
-
-var randomstring = require('randomstring'),
-    append = require('../append');
+const randomstring = require('randomstring');
+const append = require('../append');
 
 /**
  * Append data and return id
@@ -11,8 +9,6 @@ var randomstring = require('randomstring'),
  * @param {number} [bounces=32]
  * @returns {Promise}
  */
-module.exports = function (item, data, options, bounces) {
-    return append(item, data, function () {
-        return randomstring.generate(options);
-    }, bounces);
+module.exports = function(item, data, options, bounces) {
+  return append(item, data, () => randomstring.generate(options), bounces);
 };

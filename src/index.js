@@ -1,36 +1,34 @@
-'use strict';
-
-var pool = require('./pool'),
-    List = require('./list'),
-    Item = require('./item');
+const pool = require('./pool');
+const List = require('./list');
+const Item = require('./item');
 
 /**
  * Create pool which supports list and item wrapper
  * @param {Object} options
  * @returns {Function}
  */
-module.exports = function (options) {
-    var p = pool(options);
+module.exports = function(options) {
+  const p = pool(options);
+
+  /**
+   * Get list wrapper
+   * @param {string} table
+   * @returns {List}
+   */
+  p.list = function(table) {
+    const list = new List(p, table);
 
     /**
-     * Get list wrapper
-     * @param {string} table
-     * @returns {List}
+     * Get item wrapper
+     * @param {string} id
+     * @returns {Item}
      */
-    p.list = function (table) {
-        var list = new List(p, table);
-
-        /**
-         * Get item wrapper
-         * @param {string} id
-         * @returns {Item}
-         */
-        list.item = function (id) {
-            return new Item(list, id);
-        };
-
-        return list;
+    list.item = function(id) {
+      return new Item(list, id);
     };
 
-    return p;
+    return list;
+  };
+
+  return p;
 };

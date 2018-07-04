@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Append entry to table
  * @param {Item} item
@@ -9,20 +7,23 @@
  * @returns {Promise}
  */
 function append(item, data, generate, bounces) {
-    var id = generate(bounces);
-    return item.add(id, data).then(function (added) {
-        return added ? id : undefined;
-    }, function (error) {
+  const id = generate(bounces);
+  return item
+    .add(id, data)
+    .then(
+      (added) => added ? id : undefined,
+      (error) => {
         if (error.code !== 'ER_DUP_ENTRY') {
-            return Promise.reject(error);
+          return Promise.reject(error);
         } else if (bounces > 0) {
-            return append(item, data, generate, bounces - 1);
+          return append(item, data, generate, bounces - 1);
         } else {
-            return Promise.reject({
-                message: 'out of bounce'
-            });
+          return Promise.reject({
+            message: 'out of bounce'
+          });
         }
-    });
+      }
+    );
 }
 
 /**
@@ -33,7 +34,7 @@ function append(item, data, generate, bounces) {
  * @param {number} [bounces=32]
  * @returns {Promise}
  */
-module.exports = function (item, data, generate, bounces) {
-    bounces = bounces > 0 ? bounces : 32;
-    return append(item, data, generate, bounces - 1);
+module.exports = function(item, data, generate, bounces) {
+  bounces = bounces > 0 ? bounces : 32;
+  return append(item, data, generate, bounces - 1);
 };

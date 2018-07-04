@@ -1,6 +1,4 @@
-'use strict';
-
-var mysql = require('mysql');
+const mysql = require('mysql');
 
 /**
  * Promisify connection method
@@ -8,19 +6,18 @@ var mysql = require('mysql');
  * @returns {Promise}
  */
 function promisify(name) {
-    var args = Array.prototype.slice.call(arguments, 1),
-        context = this;
-    return new Promise(function (resolve, reject) {
-        args.push(function (error) {
-            var args = Array.prototype.slice.call(arguments, 1);
-            if (error) {
-                reject(error);
-            } else {
-                resolve.apply(null, args);
-            }
-        });
-        context[name].apply(context, args);
+  const args = Array.prototype.slice.call(arguments, 1);
+  return new Promise((resolve, reject) => {
+    args.push((error) => {
+      const args = Array.prototype.slice.call(arguments, 1);
+      if (error) {
+        reject(error);
+      } else {
+        resolve.apply(null, args);
+      }
     });
+    this[name].apply(this, args);
+  });
 }
 
 /**
@@ -32,23 +29,23 @@ function promisify(name) {
  * @params {string} options.database
  * @returns {Function}
  */
-module.exports = function (options) {
-    var pool = mysql.createPool(options);
+module.exports = function(options) {
+  const pool = mysql.createPool(options);
 
-    /**
-     * Create connection
-     * @returns {Promise}
-     */
-    return function(){
-        return new Promise(function (resolve, reject) {
-            pool.getConnection(function (error, connection) {
-                if (error) {
-                    reject(error);
-                } else {
-                    connection.promisify = promisify;
-                    resolve(connection);
-                }
-            });
-        });
-    };
+  /**
+   * Create connection
+   * @returns {Promise}
+   */
+  return function() {
+    return new Promise((resolve, reject) => {
+      pool.getConnection((error, connection) => {
+        if (error) {
+          reject(error);
+        } else {
+          connection.promisify = promisify;
+          resolve(connection);
+        }
+      });
+    });
+  };
 };
