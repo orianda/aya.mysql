@@ -43,10 +43,9 @@ class Item {
    * @returns {Promise|*}
    */
   set(id, data) {
-    const item = this;
     return this
       .rid(id)
-      .then(() => item.add(id, data));
+      .then(() => this.add(id, data));
   }
 
   /**

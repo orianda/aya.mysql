@@ -8,14 +8,7 @@ const mysql = require('mysql');
 function promisify(name) {
   const args = Array.prototype.slice.call(arguments, 1);
   return new Promise((resolve, reject) => {
-    args.push((error) => {
-      const args = Array.prototype.slice.call(arguments, 1);
-      if (error) {
-        reject(error);
-      } else {
-        resolve.apply(null, args);
-      }
-    });
+    args.push((error, issue) => error ? reject(error) : resolve(issue));
     this[name].apply(this, args);
   });
 }
