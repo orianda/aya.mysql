@@ -7,7 +7,7 @@ const Item = require('./item');
  * @param {Object} options
  * @returns {Function}
  */
-module.exports = function(options) {
+module.exports = (options) => {
   const p = pool(options);
 
   /**
@@ -15,7 +15,7 @@ module.exports = function(options) {
    * @param {string} table
    * @returns {List}
    */
-  p.list = function(table) {
+  p.list = (table) => {
     const list = new List(p, table);
 
     /**
@@ -23,9 +23,7 @@ module.exports = function(options) {
      * @param {string} id
      * @returns {Item}
      */
-    list.item = function(id) {
-      return new Item(list, id);
-    };
+    list.item = (id) => new Item(list, id);
 
     return list;
   };

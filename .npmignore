@@ -1,0 +1,7 @@
+/.git
+/.idea
+/node_modules
+/test
+/.gitignore
+/.jshintrc
+/package-lock.json

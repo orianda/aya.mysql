@@ -6,10 +6,13 @@ const append = require('../append');
  * @param {Item} item
  * @param {Object} data
  * @param {number} [bounces=32]
- * @returns {Promise}
+ * @returns {Promise<string, Error>}
  */
-module.exports = function(item, data, bounces) {
+module.exports = (item, data, bounces) => {
   const date = new Date();
   const salt = date.getTime() + '.' + date.getMilliseconds() + ':';
-  return append(item, data, (bounces) => crypto.createHash('md5').update(salt + bounces).digest('hex'), bounces);
+  return append(item, data, (bounces) => crypto
+    .createHash('md5')
+    .update(salt + bounces).
+    digest('hex'), bounces);
 };

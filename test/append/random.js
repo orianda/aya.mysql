@@ -1,5 +1,5 @@
 const chai = require('chai');
-const expect = chai.expect;
+const {expect} = chai;
 const sinon = require('sinon');
 const append = require('../../src/append/random');
 
@@ -83,7 +83,8 @@ describe('append random', () => {
     const promise = append(item, data);
     expect(promise).to.be.instanceOf(Promise);
     return expect(promise).to.eventually.be.rejected.then((result) => {
-      expect(result).to.deep.equal({message: 'out of bounce'});
+      expect(result).to.be.instanceOf(Error);
+      expect(result.message).to.equal('out of bounce');
       expect(item.add.args.length).to.equal(32);
     });
   });
@@ -93,7 +94,8 @@ describe('append random', () => {
     const promise = append(item, data, 10, 10);
     expect(promise).to.be.instanceOf(Promise);
     return expect(promise).to.eventually.be.rejected.then((result) => {
-      expect(result).to.deep.equal({message: 'out of bounce'});
+      expect(result).to.be.instanceOf(Error);
+      expect(result.message).to.equal('out of bounce');
       expect(item.add.args.length).to.equal(10);
     });
   });

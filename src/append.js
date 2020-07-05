@@ -1,12 +1,25 @@
 /**
+ * Append data and return id
+ * @param {Item} item
+ * @param {Object} data
+ * @param {Sinon.SinonSpy} generate
+ * @param {number} [bounces=32]
+ * @returns {Promise<string|number|undefined, Error>}
+ */
+module.exports = (item, data, generate, bounces) => {
+  bounces = bounces > 0 ? bounces : 32;
+  return append(item, data, generate, bounces - 1);
+};
+
+/**
  * Append entry to table
  * @param {Item} item
  * @param {Object} data
  * @param {Function} generate
  * @param {number} bounces
- * @returns {Promise}
+ * @returns {Promise<string|number|undefined, Error>}
  */
-function append(item, data, generate, bounces) {
+const append = (item, data, generate, bounces) => {
   const id = generate(bounces);
   return item
     .add(id, data)
@@ -18,23 +31,9 @@ function append(item, data, generate, bounces) {
         } else if (bounces > 0) {
           return append(item, data, generate, bounces - 1);
         } else {
-          return Promise.reject({
-            message: 'out of bounce'
-          });
+          const error = new Error('out of bounce');
+          return Promise.reject(error);
         }
       }
     );
-}
-
-/**
- * Append data and return id
- * @param {Item} item
- * @param {Object} data
- * @param {Function} generate
- * @param {number} [bounces=32]
- * @returns {Promise}
- */
-module.exports = function(item, data, generate, bounces) {
-  bounces = bounces > 0 ? bounces : 32;
-  return append(item, data, generate, bounces - 1);
 };

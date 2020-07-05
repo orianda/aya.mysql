@@ -2,38 +2,39 @@
   "name": "aya.mysql",
   "version": "0.0.0",
   "description": "AYA MySQL wrapper",
-  "main": "src/index.js",
-  "directories": {
-    "test": "test"
-  },
-  "dependencies": {
-    "aya.mysql.querylizer": "git+https://github.com/orianda/aya.mysql.querylizer.git",
-    "mysql": "^2.15.0",
-    "randomstring": "^1.1.5"
-  },
-  "devDependencies": {
-    "chai": "^4.1.2",
-    "chai-as-promised": "^7.1.1",
-    "mocha": "^5.2.0",
-    "proxyquire": "^2.0.1",
-    "sinon": "^6.1.0"
-  },
-  "scripts": {
-    "test": "node node_modules/mocha/bin/mocha"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/orianda/aya.mysql.git"
+  "license": "UNLICENSED",
+  "private": true,
+  "author": {
+    "name": "Orianda",
+    "email": "orianda@paan.de",
+    "url": "https://github.com/orianda"
   },
   "keywords": [
     "aya",
     "mysql",
     "wrapper"
   ],
-  "author": "orianda <orianda@paan.de>",
-  "license": "GNU",
+  "homepage": "https://github.com/orianda/aya.mysql#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orianda/aya.mysql.git"
+  },
   "bugs": {
     "url": "https://github.com/orianda/aya.mysql/issues"
   },
-  "homepage": "https://github.com/orianda/aya.mysql#readme"
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node node_modules/mocha/bin/mocha"
+  },
+  "dependencies": {
+    "@mysql/xdevapi": "^8.0.20",
+    "aya.mysql.querylizer": "git+https://github.com/orianda/aya.mysql.querylizer.git",
+    "randomstring": "^1.1.5"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^8.0.1",
+    "sinon": "^9.0.2"
+  }
 }

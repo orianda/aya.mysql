@@ -1,20 +1,6 @@
 const querylize = require('aya.mysql.querylizer');
 
 /**
- * Submit query to mysql
- * @param {Function} mysql
- * @param {string} query
- * @returns {Promise}
- */
-function submit(mysql, query) {
-  return mysql().then((connection) => {
-    const issue = connection.promisify('query', query);
-    issue.then(() => null, () => null).then(() => connection.release());
-    return issue;
-  });
-}
-
-/**
  * Table wrapper
  * Support operations on multiple rows of the table
  */
@@ -31,17 +17,40 @@ class List {
   }
 
   /**
+   * Submit query to mysql
+   * @param {string} query
+   * @returns {Promise<Object, Error>}
+   */
+  submit(query) {
+    return this
+      .mysql()
+      .then((session) => {
+        const promise1 = session
+          .sql(query)
+          .execute();
+        const promise2 = promise1
+          .then(() => undefined, () => undefined)
+          .then(() => session.close());
+        return Promise
+          .all([promise1, promise2])
+          .then(([result]) => result);
+      });
+  }
+
+  /**
    * Count affected rows
    * @param {Object} [where={}]
    * @param {number} [amount=0]
    * @param {number} [offset=0]
-   * @returns {Promise}
+   * @returns {Promise<number, Error>}
    */
   count(where, amount, offset) {
     const whereQuery = querylize.where(where);
     const limitQuery = querylize.limit(amount, offset);
-    const query = 'SELECT COUNT(*) AS `amount` FROM `' + this.table + '` ' + whereQuery + ' ' + limitQuery;
-    return submit(this.mysql, query).then((result) => result[0].amount);
+    return this
+      .submit(`SELECT COUNT(*) FROM \`${this.table}\` ${whereQuery} ${limitQuery}`)
+      .then((result) => result.toArray()[0][0][0]);
+
   }
 
   /**
@@ -51,50 +60,62 @@ class List {
    * @param {number} [amount=0]
    * @param {number} [offset=0]
    * @param {Array} [order=[]]
-   * @returns {Promise}
+   * @returns {Promise<Object[], Error>}
    */
   select(names, where, amount, offset, order) {
     const namesQuery = querylize.names(names);
     const whereQuery = querylize.where(where);
     const orderQuery = querylize.order(order);
     const limitQuery = querylize.limit(amount, offset);
-    const query = 'SELECT ' + namesQuery + ' FROM `' + this.table + '` ' + whereQuery + ' ' + orderQuery + ' ' + limitQuery;
-    return submit(this.mysql, query);
+    return this
+      .submit(`SELECT ${namesQuery} FROM \`${this.table}\` ${whereQuery} ${orderQuery} ${limitQuery}`)
+      .then((result) => {
+        const cols = result
+          .getColumns()
+          .map((col) => col.getColumnName());
+        return result
+          .getResults()[0]
+          .map((row) => {
+            const data = {};
+            for (let i = 0, l = cols.length; i < l; i++) {
+              const name = cols[i];
+              data[name] = row[i];
+            }
+            return data;
+          });
+      });
   }
 
   /**
    * Inserts new row
-   * @param {Object} data
-   * @returns {Promise}
+   * @param {Object} [data]
+   * @returns {Promise<number|undefined, Error>}
    */
   insert(data) {
-    const valueQuery = querylize.values(data);
-    const query = 'INSERT INTO `' + this.table + '` ' + valueQuery;
-    if (valueQuery) {
-      return submit(this.mysql, query).then((result) => result.affectedRows);
-    } else {
-      return Promise.resolve(0);
-    }
+    const valueQuery = querylize.values(data) || '() VALUES ()';
+    return this
+      .submit(`INSERT INTO \`${this.table}\` ${valueQuery}`)
+      .then((result) => result.getAutoIncrementValue());
   }
 
   /**
    * Update rows
-   * @param {Object} data
+   * @param {Object} [data]
    * @param {Object} [where={}]
    * @param {number} [amount=0]
    * @param {number} [offset=0]
    * @param {Array} [order=[]]
-   * @returns {Promise}
+   * @returns {Promise<number, Error>}
    */
   update(data, where, amount, offset, order) {
     const valueQuery = querylize.values(data);
     const whereQuery = querylize.where(where);
     const orderQuery = querylize.order(order);
     const limitQuery = querylize.limit(amount, offset);
-    const query = 'UPDATE `' + this.table + '` ' + valueQuery + ' ' + whereQuery + ' ' + orderQuery + ' ' + limitQuery;
     if (valueQuery) {
-      return submit(this.mysql, query)
-        .then((result) => result.affectedRows);
+      return this
+        .submit(`UPDATE \`${this.table}\` ${valueQuery} ${whereQuery} ${orderQuery} ${limitQuery}`)
+        .then((result) => result.getAffectedItemsCount());
     } else {
       return Promise.resolve(0);
     }
@@ -106,14 +127,15 @@ class List {
    * @param {number} [amount=0]
    * @param {number} [offset=0]
    * @param {Array} [order=[]]
-   * @returns {Promise}
+   * @returns {Promise<number, Error>}
    */
   remove(where, amount, offset, order) {
     const whereQuery = querylize.where(where);
     const orderQuery = querylize.order(order);
     const limitQuery = querylize.limit(amount, offset);
-    const query = 'DELETE FROM `' + this.table + '` ' + whereQuery + ' ' + orderQuery + ' ' + limitQuery;
-    return submit(this.mysql, query).then((result) => result.affectedRows);
+    return this
+      .submit(`DELETE FROM \`${this.table}\` ${whereQuery} ${orderQuery} ${limitQuery}`)
+      .then((result) => result.getAffectedItemsCount());
   }
 }
 

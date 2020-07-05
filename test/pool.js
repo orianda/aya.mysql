@@ -1,46 +1,46 @@
+const mysql = require('@mysql/xdevapi');
 const chai = require('chai');
-const expect = chai.expect;
+const {expect} = chai;
 const sinon = require('sinon');
-const proxyquire = require('proxyquire');
+const getPool = require('../src/pool');
 
 chai.use(require('chai-as-promised'));
 
 describe('pool', () => {
-  const options = {};
-  let getConnection, createPool, wrapper, callback;
+  const options = {some: 'option'};
+  let getSession, sessionPromise;
 
   beforeEach(() => {
-    getConnection = sinon.spy((cb) => {
-      callback = cb;
-    });
-    createPool = sinon.spy(() => ({getConnection}));
-    wrapper = proxyquire('../src/pool', {
-      mysql: {createPool}
-    });
+    getSession = sinon.spy(() => sessionPromise);
+    sinon.stub(mysql, 'getClient').returns({getSession});
+  });
+
+  afterEach(() => {
+    sinon.restore();
   });
 
   it('should connect', () => {
-    const pool = wrapper(options);
+    sessionPromise = Promise.resolve();
+    const pool = getPool(options);
     const promise = pool();
-    expect(createPool.calledOnce).to.equal(true);
-    expect(createPool.calledWith(options)).to.equal(true);
-    expect(getConnection.calledOnce).to.equal(true);
-    expect(getConnection.calledWith(callback)).to.equal(true);
-    expect(promise).to.be.instanceOf(Promise);
+    expect(mysql.getClient.calledOnce).to.equal(true);
+    expect(mysql.getClient.getCall(0).args[0].some).to.equal('option');
+    expect(getSession.calledOnce).to.equal(true);
+    expect(getSession.calledWith()).to.equal(true);
+    expect(promise).to.equal(sessionPromise);
   });
 
   it('should reject', () => {
-    const promise = wrapper(options)();
-    const result = {};
-    callback(result);
-    return expect(promise).to.eventually.be.rejected.and.eventually.equal(result);
+    const error = new Error();
+    sessionPromise = Promise.reject(error);
+    const promise = getPool(options)();
+    return expect(promise).to.eventually.be.rejected.and.eventually.equal(error);
   });
 
   it('should resolve', () => {
-    const promise = wrapper(options)();
-    const result = {};
-    callback(null, result);
-    return expect(promise).to.eventually.be.fulfilled.and.eventually.equal(result).and.eventually.have
-      .property('promisify');
+    const session = {};
+    sessionPromise = Promise.resolve(session);
+    const promise = getPool(options)();
+    return expect(promise).to.eventually.be.fulfilled.and.eventually.equal(session);
   });
 });

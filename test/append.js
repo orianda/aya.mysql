@@ -1,5 +1,5 @@
 const chai = require('chai');
-const expect = chai.expect;
+const {expect} = chai;
 const sinon = require('sinon');
 const append = require('../src/append');
 
@@ -45,9 +45,8 @@ describe('append', () => {
     const promise = append(item, data, generate);
     expect(promise).to.be.instanceOf(Promise);
     return expect(promise).to.eventually.be.rejected.then((result) => {
-      expect(result).to.deep.equal({
-        message: 'out of bounce'
-      });
+      expect(result).to.be.instanceOf(Error);
+      expect(result.message).to.equal('out of bounce');
       expect(generate.callCount).to.equal(32);
       expect(generate.firstCall.args).to.deep.equal([31]);
       expect(generate.lastCall.args).to.deep.equal([0]);
@@ -61,9 +60,8 @@ describe('append', () => {
     const promise = append(item, data, generate, 3);
     expect(promise).to.be.instanceOf(Promise);
     return expect(promise).to.eventually.be.rejected.then((result) => {
-      expect(result).to.deep.equal({
-        message: 'out of bounce'
-      });
+      expect(result).to.be.instanceOf(Error);
+      expect(result.message).to.equal('out of bounce');
       expect(generate.callCount).to.equal(3);
       expect(generate.firstCall.args).to.deep.equal([2]);
       expect(generate.lastCall.args).to.deep.equal([0]);

@@ -7,8 +7,6 @@ const append = require('../append');
  * @param {Object} data
  * @param {Object} [options]
  * @param {number} [bounces=32]
- * @returns {Promise}
+ * @returns {Promise<string, Error>}
  */
-module.exports = function(item, data, options, bounces) {
-  return append(item, data, () => randomstring.generate(options), bounces);
-};
+module.exports = (item, data, options, bounces) => append(item, data, () => randomstring.generate(options), bounces);

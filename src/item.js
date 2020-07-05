@@ -17,7 +17,7 @@ class Item {
   /**
    * Entry exists?
    * @param {string|number} id
-   * @returns {Promise}
+   * @returns {Promise<boolean, Error>}
    */
   has(id) {
     return this.list
@@ -28,7 +28,7 @@ class Item {
   /**
    * Get entry
    * @param {string|number} id
-   * @returns {Promise}
+   * @returns {Promise<Object, Error>}
    */
   get(id) {
     return this.list
@@ -40,7 +40,7 @@ class Item {
    * Create or replace entry
    * @param {string|number} id
    * @param {Object} data
-   * @returns {Promise|*}
+   * @returns {Promise<boolean, Error>}
    */
   set(id, data) {
     return this
@@ -52,7 +52,7 @@ class Item {
    * Add entry
    * @param {string|number} id
    * @param {Object} data
-   * @returns {Promise}
+   * @returns {Promise<boolean, Error>}
    */
   add(id, data) {
     data[this.id] = id;
@@ -65,7 +65,7 @@ class Item {
    * Update entry
    * @param {string|number} id
    * @param {Object} data
-   * @returns {Promise}
+   * @returns {Promise<boolean, Error>}
    */
   mod(id, data) {
     return this.list
@@ -76,7 +76,7 @@ class Item {
   /**
    * Delete entry
    * @param {string|number} id
-   * @returns {Promise}
+   * @returns {Promise<boolean, Error>}
    */
   rid(id) {
     return this.list

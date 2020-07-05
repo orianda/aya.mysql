@@ -1,44 +1,25 @@
-const mysql = require('mysql');
-
-/**
- * Promisify connection method
- * @param {string} name
- * @returns {Promise}
- */
-function promisify(name) {
-  const args = Array.prototype.slice.call(arguments, 1);
-  return new Promise((resolve, reject) => {
-    args.push((error, issue) => error ? reject(error) : resolve(issue));
-    this[name].apply(this, args);
-  });
-}
+const mysql = require('@mysql/xdevapi');
 
 /**
  * Create connection pool
- * @see https://github.com/felixge/node-mysql#connection-options
  * @params {Object} options
- * @params {string} options.user
- * @params {string} options.password
- * @params {string} options.database
  * @returns {Function}
  */
-module.exports = function(options) {
-  const pool = mysql.createPool(options);
+module.exports = (options) => {
+  const client = mysql.getClient({
+    ...options,
+    schema: options.schema || options.database,
+    pooling: {
+      enabled: true,
+      maxSize: 1,
+      maxIdleTime: 1000,
+      queueTimeout: 2000
+    }
+  });
 
   /**
-   * Create connection
-   * @returns {Promise}
+   * Create session
+   * @returns {Promise<Session, Error>}
    */
-  return function() {
-    return new Promise((resolve, reject) => {
-      pool.getConnection((error, connection) => {
-        if (error) {
-          reject(error);
-        } else {
-          connection.promisify = promisify;
-          resolve(connection);
-        }
-      });
-    });
-  };
+  return () => client.getSession();
 };
