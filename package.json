@@ -25,6 +25,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "install": "npm run build",
     "build": "node node_modules/typescript/bin/tsc",
     "test": "node node_modules/mocha/bin/mocha"
   },
