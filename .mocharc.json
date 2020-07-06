@@ -1,0 +1,11 @@
+{
+  "global": [],
+  "ignore": [],
+  "reporter": "spec",
+  "reporter-option": [],
+  "require": [
+    "ts-node/register"
+  ],
+  "spec": "lib/**/*.spec.ts",
+  "ui": "bdd"
+}
