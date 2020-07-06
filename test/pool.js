@@ -2,7 +2,7 @@ const mysql = require('@mysql/xdevapi');
 const chai = require('chai');
 const {expect} = chai;
 const sinon = require('sinon');
-const getPool = require('../src/pool');
+const {default: getPool} = require('../dist/pool');
 
 chai.use(require('chai-as-promised'));
 

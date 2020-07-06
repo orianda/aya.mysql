@@ -1,7 +1,7 @@
 const chai = require('chai');
 const {expect} = chai;
 const sinon = require('sinon');
-const Item = require('../src/item');
+const {default: Item} = require('../dist/item');
 
 chai.use(require('chai-as-promised'));
 
@@ -48,7 +48,7 @@ describe('item', () => {
     return expect(promise).to.eventually.be.fulfilled.then((result) => {
       expect(result).to.equal(entry);
       expect(list.select.calledOnce).to.equal(true);
-      expect(list.select.calledWith(null, {id: 123}, 1)).to.equal(true);
+      expect(list.select.calledWith(undefined, {id: 123}, 1)).to.equal(true);
     });
   });
 
@@ -59,7 +59,7 @@ describe('item', () => {
     return expect(promise).to.eventually.be.fulfilled.then((result) => {
       expect(result).to.equal(undefined);
       expect(list.select.calledOnce).to.equal(true);
-      expect(list.select.calledWith(null, {id: 123}, 1)).to.equal(true);
+      expect(list.select.calledWith(undefined, {id: 123}, 1)).to.equal(true);
     });
   });
 
@@ -102,22 +102,11 @@ describe('item', () => {
   });
 
   it('should insert', () => {
-    list.insert = sinon.spy(() => Promise.resolve(1));
+    list.insert = sinon.spy(() => Promise.resolve(undefined));
     const promise = item.add(123, {name: 'value'});
     expect(promise).to.be.instanceOf(Promise);
     return expect(promise).to.eventually.be.fulfilled.then((result) => {
-      expect(result).to.equal(true);
-      expect(list.insert.calledOnce).to.equal(true);
-      expect(list.insert.calledWith({name: 'value', id: 123})).to.equal(true);
-    });
-  });
-
-  it('should not insert', () => {
-    list.insert = sinon.spy(() => Promise.resolve(0));
-    const promise = item.add(123, {name: 'value'});
-    expect(promise).to.be.instanceOf(Promise);
-    return expect(promise).to.eventually.be.fulfilled.then((result) => {
-      expect(result).to.equal(false);
+      expect(result).to.equal(undefined);
       expect(list.insert.calledOnce).to.equal(true);
       expect(list.insert.calledWith({name: 'value', id: 123})).to.equal(true);
     });

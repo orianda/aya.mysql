@@ -1,29 +1,21 @@
-const querylize = require('aya.mysql.querylizer');
+import querylize, {Amount, Names, Offset, Order, Where} from "aya.mysql.querylizer";
+import {Result} from "@mysql/xdevapi";
+import {PoolDto} from "./pool.dto";
+import {RowDto} from "./List.dto";
 
-/**
- * Table wrapper
- * Support operations on multiple rows of the table
- */
-class List {
+export default class List {
 
-  /**
-   * @constructor
-   * @param {Function} mysql
-   * @param {string} table
-   */
-  constructor(mysql, table) {
-    this.mysql = mysql;
+  pool: PoolDto;
+  table: string;
+
+  constructor(pool: PoolDto, table: string) {
+    this.pool = pool;
     this.table = table;
   }
 
-  /**
-   * Submit query to mysql
-   * @param {string} query
-   * @returns {Promise<Object, Error>}
-   */
-  submit(query) {
+  submit(query: string): Promise<Result> {
     return this
-      .mysql()
+      .pool()
       .then((session) => {
         const promise1 = session
           .sql(query)
@@ -37,14 +29,7 @@ class List {
       });
   }
 
-  /**
-   * Count affected rows
-   * @param {Object} [where={}]
-   * @param {number} [amount=0]
-   * @param {number} [offset=0]
-   * @returns {Promise<number, Error>}
-   */
-  count(where, amount, offset) {
+  count(where?: Where, amount?: Amount, offset?: Offset): Promise<number> {
     const whereQuery = querylize.where(where);
     const limitQuery = querylize.limit(amount, offset);
     return this
@@ -53,16 +38,7 @@ class List {
 
   }
 
-  /**
-   * Select rows
-   * @param {Object} [names=[]]
-   * @param {Object} [where={}]
-   * @param {number} [amount=0]
-   * @param {number} [offset=0]
-   * @param {Array} [order=[]]
-   * @returns {Promise<Object[], Error>}
-   */
-  select(names, where, amount, offset, order) {
+  select(names?: Names, where?: Where, amount?: Amount, offset?: Offset, order?: Order): Promise<ReadonlyArray<RowDto>> {
     const namesQuery = querylize.names(names);
     const whereQuery = querylize.where(where);
     const orderQuery = querylize.order(order);
@@ -76,7 +52,7 @@ class List {
         return result
           .getResults()[0]
           .map((row) => {
-            const data = {};
+            const data: RowDto = {};
             for (let i = 0, l = cols.length; i < l; i++) {
               const name = cols[i];
               data[name] = row[i];
@@ -86,28 +62,14 @@ class List {
       });
   }
 
-  /**
-   * Inserts new row
-   * @param {Object} [data]
-   * @returns {Promise<number|undefined, Error>}
-   */
-  insert(data) {
+  insert(data?: RowDto): Promise<number | undefined> {
     const valueQuery = querylize.values(data) || '() VALUES ()';
     return this
       .submit(`INSERT INTO \`${this.table}\` ${valueQuery}`)
       .then((result) => result.getAutoIncrementValue());
   }
 
-  /**
-   * Update rows
-   * @param {Object} [data]
-   * @param {Object} [where={}]
-   * @param {number} [amount=0]
-   * @param {number} [offset=0]
-   * @param {Array} [order=[]]
-   * @returns {Promise<number, Error>}
-   */
-  update(data, where, amount, offset, order) {
+  update(data?: RowDto, where?: Where, amount?: Amount, offset?: Offset, order?: Order): Promise<number> {
     const valueQuery = querylize.values(data);
     const whereQuery = querylize.where(where);
     const orderQuery = querylize.order(order);
@@ -121,15 +83,7 @@ class List {
     }
   }
 
-  /**
-   * Remove rows
-   * @param {Object} [where={}]
-   * @param {number} [amount=0]
-   * @param {number} [offset=0]
-   * @param {Array} [order=[]]
-   * @returns {Promise<number, Error>}
-   */
-  remove(where, amount, offset, order) {
+  remove(where?: Where, amount?: Amount, offset?: Offset, order?: Order): Promise<number> {
     const whereQuery = querylize.where(where);
     const orderQuery = querylize.order(order);
     const limitQuery = querylize.limit(amount, offset);
@@ -138,5 +92,3 @@ class List {
       .then((result) => result.getAffectedItemsCount());
   }
 }
-
-module.exports = List;

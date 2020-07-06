@@ -22,8 +22,11 @@
   "bugs": {
     "url": "https://github.com/orianda/aya.mysql/issues"
   },
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "prepublish": "npm run build",
+    "build": "tsc",
     "test": "node node_modules/mocha/bin/mocha"
   },
   "dependencies": {
@@ -35,6 +38,7 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "mocha": "^8.0.1",
-    "sinon": "^9.0.2"
+    "sinon": "^9.0.2",
+    "typescript": "^3.9.6"
   }
 }

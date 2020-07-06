@@ -1,7 +1,7 @@
 const chai = require('chai');
 const {expect} = chai;
 const sinon = require('sinon');
-const List = require('../src/list');
+const {default:List} = require('../dist/list');
 
 chai.use(require('chai-as-promised'));
 
