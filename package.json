@@ -25,20 +25,20 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "prepublish": "npm run build",
+    "install": "npm run build",
     "build": "tsc",
     "test": "node node_modules/mocha/bin/mocha"
   },
   "dependencies": {
     "@mysql/xdevapi": "^8.0.20",
     "aya.mysql.querylizer": "git+https://github.com/orianda/aya.mysql.querylizer.git",
-    "randomstring": "^1.1.5"
+    "randomstring": "^1.1.5",
+    "typescript": "^3.9.6"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "mocha": "^8.0.1",
-    "sinon": "^9.0.2",
-    "typescript": "^3.9.6"
+    "sinon": "^9.0.2"
   }
 }
