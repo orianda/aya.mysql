@@ -1,45 +1,28 @@
-import mysql, {Client} from "@mysql/xdevapi";
 import {expect} from "chai";
-import sinon from "sinon";
-import getPool from "./index";
-import {PoolOptionsDto} from "./pool.dto";
-import {LibPoolDto} from "./index.dto";
-import List from "./List";
-import Item from "./Item";
+import pool from ".";
+import {List, Item} from ".";
+import libPool from "./pool";
+import libList from "./List";
+import libItem from "./Item";
 
 describe('pool', () => {
-  let pool: LibPoolDto;
+  const srv: {
+    [name: string]: any;
+  } = {pool,List,Item};
+  const lib: {
+    [name: string]: any;
+  } = {
+    pool:libPool,
+    List:libList,
+    Item:libItem
+  };
 
-  beforeEach(() => {
-    sinon.stub(mysql, 'getClient').returns({} as Client);
-    pool = getPool({} as PoolOptionsDto);
-  });
+  Object
+    .keys(srv)
+    .forEach((name) => {
 
-  afterEach(() => {
-    sinon.restore();
-  });
-
-  it('should be a function', () => {
-    expect(pool).to.be.a('function');
-  });
-
-  it('should have list property', () => {
-    expect(pool.list).to.be.a('function');
-  });
-
-  it('should create list', () => {
-    const list = pool.list('table');
-    expect(list).to.be.instanceOf(List);
-  });
-
-  it('should have item property', () => {
-    const list = pool.list('table');
-    expect(list.item).to.be.a('function');
-  });
-
-  it('should create item', () => {
-    const list = pool.list('table');
-    const item = list.item('id');
-    expect(item).to.be.instanceOf(Item);
-  });
+      it(`should have ${name}`, () => {
+        expect(srv[name]).to.equal(lib[name]);
+      });
+    });
 });

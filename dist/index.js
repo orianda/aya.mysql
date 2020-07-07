@@ -1,17 +1,20 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !exports.hasOwnProperty(p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const List_1 = __importDefault(require("./List"));
-const Item_1 = __importDefault(require("./Item"));
-const pool_1 = __importDefault(require("./pool"));
-exports.default = (options) => {
-    const pool = pool_1.default(options);
-    const list = (table) => {
-        const list = new List_1.default(pool, table);
-        const item = (id) => new Item_1.default(list, id);
-        return Object.assign(list, { item });
-    };
-    return Object.assign(pool, { list });
-};
+var pool_1 = require("./pool");
+Object.defineProperty(exports, "default", { enumerable: true, get: function () { return pool_1.default; } });
+var List_1 = require("./List");
+Object.defineProperty(exports, "List", { enumerable: true, get: function () { return List_1.default; } });
+var Item_1 = require("./Item");
+Object.defineProperty(exports, "Item", { enumerable: true, get: function () { return Item_1.default; } });
+__exportStar(require("./Item.dto"), exports);
+__exportStar(require("./pool.dto"), exports);

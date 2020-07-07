@@ -1,15 +1,16 @@
-import { Amount, Names, Offset, Order, Where } from "aya.mysql.querylizer";
 import { Result } from "@mysql/xdevapi";
+import { AmountDto, NamesDto, OffsetDto, OrderDto, ValuesDto, ValuesListDto, WhereDto } from "aya.mysql.querylizer";
 import { PoolDto } from "./pool.dto";
-import { RowDto } from "./List.dto";
 export default class List {
-    pool: PoolDto;
-    table: string;
+    private readonly pool;
+    readonly table: string;
+    private querylize;
     constructor(pool: PoolDto, table: string);
     submit(query: string): Promise<Result>;
-    count(where?: Where, amount?: Amount, offset?: Offset): Promise<number>;
-    select(names?: Names, where?: Where, amount?: Amount, offset?: Offset, order?: Order): Promise<ReadonlyArray<RowDto>>;
-    insert(data?: RowDto): Promise<number | undefined>;
-    update(data?: RowDto, where?: Where, amount?: Amount, offset?: Offset, order?: Order): Promise<number>;
-    remove(where?: Where, amount?: Amount, offset?: Offset, order?: Order): Promise<number>;
+    count(where?: WhereDto, amount?: AmountDto, offset?: OffsetDto): Promise<number>;
+    select(names?: NamesDto, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<ValuesListDto>;
+    insert(values?: ValuesDto): Promise<number | undefined>;
+    update(values?: ValuesDto, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<number>;
+    replace(values?: ValuesDto, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<number>;
+    remove(where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<number>;
 }

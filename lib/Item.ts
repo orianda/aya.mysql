@@ -1,15 +1,13 @@
 import List from "./List";
-import {RowDto} from "./List.dto";
 import {GenerateDto} from "./Item.dto";
+import {ValuesItemDto} from "aya.mysql.querylizer";
 
 export default class Item {
 
-  list: List;
-  id: string;
-
-  constructor(list: List, id: string) {
-    this.list = list;
-    this.id = id;
+  constructor(
+    private readonly list: List,
+    public readonly id: string
+  ) {
   }
 
   has(id: number | string): Promise<boolean> {
@@ -18,25 +16,25 @@ export default class Item {
       .then((result) => result > 0);
   }
 
-  get(id: number | string): Promise<RowDto> {
+  get(id: number | string): Promise<ValuesItemDto> {
     return this.list
       .select(undefined, {[this.id]: id}, 1)
       .then((result) => result[0]);
   }
 
-  set(id: number | string, data?: RowDto): Promise<number | undefined> {
+  set(id: number | string, data?: ValuesItemDto): Promise<number | undefined> {
     return this
       .rid(id)
       .then(() => this.add(id, data));
   }
 
-  add(id: number | string | undefined, data: RowDto = {}): Promise<number | undefined> {
+  add(id: number | string | undefined, data: ValuesItemDto = {}): Promise<number | undefined> {
     data[this.id] = id;
     return this.list
       .insert(data);
   }
 
-  mod(id: number | string, data?: RowDto): Promise<boolean> {
+  mod(id: number | string, data?: ValuesItemDto): Promise<boolean> {
     return this.list
       .update(data, {[this.id]: id}, 1)
       .then((amount) => amount > 0);
@@ -48,7 +46,7 @@ export default class Item {
       .then((result) => result > 0);
   }
 
-  append(data: RowDto, generate: GenerateDto, bounces: number = 32): Promise<string | number> {
+  append(data: ValuesItemDto, generate: GenerateDto, bounces: number = 32): Promise<string | number> {
     const id = generate(bounces);
     return this
       .add(id, data)

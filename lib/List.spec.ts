@@ -1,7 +1,8 @@
+import {Result} from "@mysql/xdevapi";
 import {expect} from "chai";
 import sinon, {SinonSpy} from "sinon";
+import {PoolDto} from "./pool.dto";
 import List from './List';
-import {Result} from "@mysql/xdevapi";
 
 describe('List', () => {
 
@@ -23,7 +24,7 @@ describe('List', () => {
         close: sinon.spy(() => Promise.resolve())
       };
       mysql = sinon.spy(() => Promise.resolve(session));
-      list = new List(mysql, 'table');
+      list = new List(mysql as unknown as PoolDto, 'table');
     });
 
     it('should count', () => {
@@ -36,7 +37,7 @@ describe('List', () => {
           expect(mysql.calledOnce).to.equal(true);
           expect(mysql.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('SELECT COUNT(*) FROM `table`  ')).to.equal(true);
+          expect(session.sql.calledWith('SELECT COUNT(*) AS `amount` FROM `table`')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
           expect(session.close.calledWith()).to.equal(true);
           expect(issue).to.equal(0);
@@ -53,7 +54,7 @@ describe('List', () => {
           expect(mysql.calledOnce).to.equal(true);
           expect(mysql.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('SELECT COUNT(*) FROM `table` WHERE `name` = "value" LIMIT 5, 10')).to.equal(true);
+          expect(session.sql.calledWith('SELECT COUNT(*) AS `amount` FROM `table` WHERE `name` = "value" LIMIT 5, 10')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
           expect(session.close.calledWith()).to.equal(true);
           expect(issue).to.equal(0);
@@ -73,7 +74,7 @@ describe('List', () => {
           expect(mysql.calledOnce).to.equal(true);
           expect(mysql.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('SELECT * FROM `table`   ')).to.equal(true);
+          expect(session.sql.calledWith('SELECT * FROM `table`')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
           expect(session.close.calledWith()).to.equal(true);
           expect(issue).to.deep.equal([{name: 'value1'}, {name: 'value2'}]);
@@ -144,7 +145,7 @@ describe('List', () => {
           expect(mysql.calledOnce).to.equal(true);
           expect(mysql.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('UPDATE `table` SET `name` = "value"   ')).to.equal(true);
+          expect(session.sql.calledWith('UPDATE `table` SET `name` = "value"')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
           expect(session.close.calledWith()).to.equal(true);
           expect(issue).to.equal(1);
@@ -182,6 +183,54 @@ describe('List', () => {
         });
     });
 
+    it('should replace', () => {
+      result = {
+        getAffectedItemsCount: () => 1
+      };
+      return list
+        .replace({name: 'value'})
+        .then((issue) => {
+          expect(mysql.calledOnce).to.equal(true);
+          expect(mysql.calledWith()).to.equal(true);
+          expect(session.sql.calledOnce).to.equal(true);
+          expect(session.sql.calledWith('REPLACE `table` SET `name` = "value"')).to.equal(true);
+          expect(session.close.calledOnce).to.equal(true);
+          expect(session.close.calledWith()).to.equal(true);
+          expect(issue).to.equal(1);
+        });
+    });
+
+    it('should replace partial', () => {
+      result = {
+        getAffectedItemsCount: () => 1
+      };
+      return list
+        .replace({name: 'value'}, {name: 'equal'}, 10, 5, ['name'])
+        .then((issue) => {
+          expect(mysql.calledOnce).to.equal(true);
+          expect(mysql.calledWith()).to.equal(true);
+          expect(session.sql.calledOnce).to.equal(true);
+          expect(session.sql.calledWith('REPLACE `table` SET `name` = "value" WHERE `name` = "equal" ORDER BY `name` ASC LIMIT 5, 10')).to.equal(true);
+          expect(session.close.calledOnce).to.equal(true);
+          expect(session.close.calledWith()).to.equal(true);
+          expect(issue).to.equal(1);
+        });
+    });
+
+    it('should replace nothing', () => {
+      result = {
+        getAffectedItemsCount: () => 1
+      };
+      return list
+        .replace({})
+        .then((issue) => {
+          expect(mysql.called).to.equal(false);
+          expect(session.sql.called).to.equal(false);
+          expect(session.close.called).to.equal(false);
+          expect(issue).to.equal(0);
+        });
+    });
+
     it('should remove', () => {
       result = {
         getAffectedItemsCount: () => 1
@@ -192,7 +241,7 @@ describe('List', () => {
           expect(mysql.calledOnce).to.equal(true);
           expect(mysql.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('DELETE FROM `table`   ')).to.equal(true);
+          expect(session.sql.calledWith('DELETE FROM `table`')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
           expect(session.close.calledWith()).to.equal(true);
           expect(issue).to.equal(1);
@@ -248,14 +297,13 @@ describe('List', () => {
               close: sinon.spy(() => close ? Promise.reject(error3) : Promise.resolve())
             };
             const mysql = sinon.spy(() => sess ? Promise.reject(error1) : Promise.resolve(session));
-            list = new List(mysql, 'table');
+            list = new List(mysql as unknown as PoolDto, 'table');
           });
 
-          ['submit', 'count', 'select', 'insert', 'update', 'remove'].forEach((name) => {
+          ['submit', 'count', 'select', 'insert', 'update', 'replace', 'remove'].forEach((name) => {
 
             it(`should fail for ${name}`, () => {
-              const args = name === 'update' ? [{some: 'data'}] : [];
-              return (list as any)[name](...args)
+              return (list as any)[name]({some: 'data'})
                 .then(() => {
                   expect(false).to.equal(true);
                 }, (issue: Error) => {

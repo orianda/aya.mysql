@@ -1,5 +1,7 @@
 import mysql from "@mysql/xdevapi";
-import {PoolDto, PoolOptionsDto} from "./pool.dto";
+import {PoolDto, PoolItemDto, PoolListDto, PoolOptionsDto} from "./pool.dto";
+import List from "./List";
+import Item from "./Item";
 
 export default (options: PoolOptionsDto): PoolDto => {
   const client = mysql.getClient({
@@ -12,6 +14,11 @@ export default (options: PoolOptionsDto): PoolDto => {
       queueTimeout: 2000
     }
   });
-
-  return () => client.getSession();
+  const pool: PoolDto = () => client.getSession();
+  pool.list = (table: string): PoolListDto => {
+    const list = new List(pool, table);
+    const item = (id: string): PoolItemDto => new Item(list, id);
+    return Object.assign(list, {item});
+  };
+  return pool;
 };

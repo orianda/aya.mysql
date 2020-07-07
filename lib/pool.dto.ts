@@ -1,6 +1,6 @@
+import Item from "./Item";
+import List from "./List";
 import {Session} from "@mysql/xdevapi";
-
-export type PoolDto = () => Promise<Session>;
 
 export type PoolOptionsDto = PoolOptionsDatabaseDto | PoolOptionsSchemaDto;
 
@@ -21,3 +21,15 @@ interface PoolOptionsCommonDto {
   schema?: string;
 }
 
+export interface PoolDto {
+  (): Promise<Session>;
+
+  list(table: string): PoolListDto;
+}
+
+export interface PoolListDto extends List {
+  item(id: string): PoolItemDto;
+}
+
+export interface PoolItemDto extends Item {
+}

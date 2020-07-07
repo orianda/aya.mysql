@@ -1,13 +1,11 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const aya_mysql_querylizer_1 = __importDefault(require("aya.mysql.querylizer"));
+const aya_mysql_querylizer_1 = require("aya.mysql.querylizer");
 class List {
     constructor(pool, table) {
         this.pool = pool;
         this.table = table;
+        this.querylize = new aya_mysql_querylizer_1.Table(table);
     }
     submit(query) {
         return this
@@ -25,19 +23,15 @@ class List {
         });
     }
     count(where, amount, offset) {
-        const whereQuery = aya_mysql_querylizer_1.default.where(where);
-        const limitQuery = aya_mysql_querylizer_1.default.limit(amount, offset);
+        const query = this.querylize.count(where, amount, offset);
         return this
-            .submit(`SELECT COUNT(*) FROM \`${this.table}\` ${whereQuery} ${limitQuery}`)
+            .submit(query)
             .then((result) => result.toArray()[0][0][0]);
     }
     select(names, where, amount, offset, order) {
-        const namesQuery = aya_mysql_querylizer_1.default.names(names);
-        const whereQuery = aya_mysql_querylizer_1.default.where(where);
-        const orderQuery = aya_mysql_querylizer_1.default.order(order);
-        const limitQuery = aya_mysql_querylizer_1.default.limit(amount, offset);
+        const query = this.querylize.select(names, where, amount, offset, order);
         return this
-            .submit(`SELECT ${namesQuery} FROM \`${this.table}\` ${whereQuery} ${orderQuery} ${limitQuery}`)
+            .submit(query)
             .then((result) => {
             const cols = result
                 .getColumns()
@@ -54,20 +48,28 @@ class List {
             });
         });
     }
-    insert(data) {
-        const valueQuery = aya_mysql_querylizer_1.default.values(data) || '() VALUES ()';
+    insert(values) {
+        const query = this.querylize.insert(values);
         return this
-            .submit(`INSERT INTO \`${this.table}\` ${valueQuery}`)
+            .submit(query)
             .then((result) => result.getAutoIncrementValue());
     }
-    update(data, where, amount, offset, order) {
-        const valueQuery = aya_mysql_querylizer_1.default.values(data);
-        const whereQuery = aya_mysql_querylizer_1.default.where(where);
-        const orderQuery = aya_mysql_querylizer_1.default.order(order);
-        const limitQuery = aya_mysql_querylizer_1.default.limit(amount, offset);
-        if (valueQuery) {
+    update(values, where, amount, offset, order) {
+        const query = this.querylize.update(values, where, amount, offset, order);
+        if (query) {
             return this
-                .submit(`UPDATE \`${this.table}\` ${valueQuery} ${whereQuery} ${orderQuery} ${limitQuery}`)
+                .submit(query)
+                .then((result) => result.getAffectedItemsCount());
+        }
+        else {
+            return Promise.resolve(0);
+        }
+    }
+    replace(values, where, amount, offset, order) {
+        const query = this.querylize.replace(values, where, amount, offset, order);
+        if (query) {
+            return this
+                .submit(query)
                 .then((result) => result.getAffectedItemsCount());
         }
         else {
@@ -75,11 +77,9 @@ class List {
         }
     }
     remove(where, amount, offset, order) {
-        const whereQuery = aya_mysql_querylizer_1.default.where(where);
-        const orderQuery = aya_mysql_querylizer_1.default.order(order);
-        const limitQuery = aya_mysql_querylizer_1.default.limit(amount, offset);
+        const query = this.querylize.remove(where, amount, offset, order);
         return this
-            .submit(`DELETE FROM \`${this.table}\` ${whereQuery} ${orderQuery} ${limitQuery}`)
+            .submit(query)
             .then((result) => result.getAffectedItemsCount());
     }
 }

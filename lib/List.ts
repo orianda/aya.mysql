@@ -1,16 +1,26 @@
-import querylize, {Amount, Names, Offset, Order, Where} from "aya.mysql.querylizer";
 import {Result} from "@mysql/xdevapi";
+import {
+  AmountDto,
+  NamesDto,
+  OffsetDto,
+  OrderDto,
+  Table,
+  ValuesDto,
+  ValuesItemDto,
+  ValuesListDto,
+  WhereDto
+} from "aya.mysql.querylizer";
 import {PoolDto} from "./pool.dto";
-import {RowDto} from "./List.dto";
 
 export default class List {
 
-  pool: PoolDto;
-  table: string;
+  private querylize: Table;
 
-  constructor(pool: PoolDto, table: string) {
-    this.pool = pool;
-    this.table = table;
+  constructor(
+    private readonly pool: PoolDto,
+    public readonly table: string
+  ) {
+    this.querylize = new Table(table);
   }
 
   submit(query: string): Promise<Result> {
@@ -29,22 +39,18 @@ export default class List {
       });
   }
 
-  count(where?: Where, amount?: Amount, offset?: Offset): Promise<number> {
-    const whereQuery = querylize.where(where);
-    const limitQuery = querylize.limit(amount, offset);
+  count(where?: WhereDto, amount?: AmountDto, offset?: OffsetDto): Promise<number> {
+    const query = this.querylize.count(where, amount, offset);
     return this
-      .submit(`SELECT COUNT(*) FROM \`${this.table}\` ${whereQuery} ${limitQuery}`)
+      .submit(query)
       .then((result) => result.toArray()[0][0][0]);
 
   }
 
-  select(names?: Names, where?: Where, amount?: Amount, offset?: Offset, order?: Order): Promise<ReadonlyArray<RowDto>> {
-    const namesQuery = querylize.names(names);
-    const whereQuery = querylize.where(where);
-    const orderQuery = querylize.order(order);
-    const limitQuery = querylize.limit(amount, offset);
+  select(names?: NamesDto, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<ValuesListDto> {
+    const query = this.querylize.select(names, where, amount, offset, order);
     return this
-      .submit(`SELECT ${namesQuery} FROM \`${this.table}\` ${whereQuery} ${orderQuery} ${limitQuery}`)
+      .submit(query)
       .then((result) => {
         const cols = result
           .getColumns()
@@ -52,7 +58,7 @@ export default class List {
         return result
           .getResults()[0]
           .map((row) => {
-            const data: RowDto = {};
+            const data: ValuesItemDto = {};
             for (let i = 0, l = cols.length; i < l; i++) {
               const name = cols[i];
               data[name] = row[i];
@@ -62,33 +68,39 @@ export default class List {
       });
   }
 
-  insert(data?: RowDto): Promise<number | undefined> {
-    const valueQuery = querylize.values(data) || '() VALUES ()';
+  insert(values?: ValuesDto): Promise<number | undefined> {
+    const query = this.querylize.insert(values);
     return this
-      .submit(`INSERT INTO \`${this.table}\` ${valueQuery}`)
+      .submit(query)
       .then((result) => result.getAutoIncrementValue());
   }
 
-  update(data?: RowDto, where?: Where, amount?: Amount, offset?: Offset, order?: Order): Promise<number> {
-    const valueQuery = querylize.values(data);
-    const whereQuery = querylize.where(where);
-    const orderQuery = querylize.order(order);
-    const limitQuery = querylize.limit(amount, offset);
-    if (valueQuery) {
+  update(values?: ValuesDto, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<number> {
+    const query = this.querylize.update(values, where, amount, offset, order);
+    if (query) {
       return this
-        .submit(`UPDATE \`${this.table}\` ${valueQuery} ${whereQuery} ${orderQuery} ${limitQuery}`)
+        .submit(query)
         .then((result) => result.getAffectedItemsCount());
     } else {
       return Promise.resolve(0);
     }
   }
 
-  remove(where?: Where, amount?: Amount, offset?: Offset, order?: Order): Promise<number> {
-    const whereQuery = querylize.where(where);
-    const orderQuery = querylize.order(order);
-    const limitQuery = querylize.limit(amount, offset);
+  replace(values?: ValuesDto, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<number> {
+    const query = this.querylize.replace(values, where, amount, offset, order);
+    if (query) {
+      return this
+        .submit(query)
+        .then((result) => result.getAffectedItemsCount());
+    } else {
+      return Promise.resolve(0);
+    }
+  }
+
+  remove(where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<number> {
+    const query = this.querylize.remove(where, amount, offset, order);
     return this
-      .submit(`DELETE FROM \`${this.table}\` ${whereQuery} ${orderQuery} ${limitQuery}`)
+      .submit(query)
       .then((result) => result.getAffectedItemsCount());
   }
 }
