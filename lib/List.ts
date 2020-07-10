@@ -52,11 +52,15 @@ export default class List {
     return this
       .submit(query)
       .then((result) => {
+        const rows = result.getResults()[0];
+        if(!rows){
+          return [];
+        }
+
         const cols = result
           .getColumns()
           .map((col) => col.getColumnName());
-        return result
-          .getResults()[0]
+        return rows
           .map((row) => {
             const data: ValuesItemDto = {};
             for (let i = 0, l = cols.length; i < l; i++) {
