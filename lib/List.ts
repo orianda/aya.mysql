@@ -53,7 +53,7 @@ export default class List {
       .submit(query)
       .then((result) => {
         const rows = result.getResults()[0];
-        if(!rows){
+        if (!rows) {
           return [];
         }
 
