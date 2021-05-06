@@ -1,10 +1,10 @@
-import mysql from "@mysql/xdevapi";
+import {getClient} from "@mysql/xdevapi";
 import {PoolDto, PoolItemDto, PoolListDto, PoolOptionsDto} from "./pool.dto";
 import List from "./List";
 import Item from "./Item";
 
 export default (options: PoolOptionsDto): PoolDto => {
-  const client = mysql.getClient({
+  const client = getClient({
     ...options,
     schema: options.schema || options.database as string,
     pooling: {

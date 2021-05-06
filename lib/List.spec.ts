@@ -1,4 +1,4 @@
-import {Result} from "@mysql/xdevapi";
+import {Result, Row} from "@mysql/xdevapi";
 import {expect} from "chai";
 import sinon, {SinonSpy} from "sinon";
 import {PoolDto} from "./pool.dto";
@@ -66,7 +66,11 @@ describe('List', () => {
         getColumns: () => [{
           getColumnName: () => 'name'
         }],
-        getResults: () => [[['value1'], ['value2']]]
+        getResults: () => [[{
+          toArray: () => ['value1']
+        } as any as Row, {
+          toArray: () => ['value2']
+        } as any as Row]]
       };
       return list
         .select()
@@ -86,7 +90,11 @@ describe('List', () => {
         getColumns: () => [{
           getColumnName: () => 'name'
         }],
-        getResults: () => [[['value1'], ['value2']]]
+        getResults: () => [[{
+          toArray: () => ['value1']
+        } as any as Row, {
+          toArray: () => ['value2']
+        } as any as Row]]
       };
       return list
         .select(['name'], {name: 'value'}, 10, 5, ['name'])

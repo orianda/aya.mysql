@@ -44,7 +44,6 @@ export default class List {
     return this
       .submit(query)
       .then((result) => result.toArray()[0][0][0]);
-
   }
 
   select(names?: NamesDto, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<ValuesListDto> {
@@ -62,10 +61,11 @@ export default class List {
           .map((col) => col.getColumnName());
         return rows
           .map((row) => {
+            const list = row.toArray();
             const data: ValuesItemDto = {};
             for (let i = 0, l = cols.length; i < l; i++) {
               const name = cols[i];
-              data[name] = row[i];
+              data[name] = list[i];
             }
             return data;
           });
