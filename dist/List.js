@@ -42,10 +42,11 @@ class List {
                 .map((col) => col.getColumnName());
             return rows
                 .map((row) => {
+                const list = row.toArray();
                 const data = {};
                 for (let i = 0, l = cols.length; i < l; i++) {
                     const name = cols[i];
-                    data[name] = row[i];
+                    data[name] = list[i];
                 }
                 return data;
             });
