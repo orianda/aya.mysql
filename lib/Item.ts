@@ -1,8 +1,7 @@
-import List from "./List";
-import {GenerateDto} from "./Item.dto";
+import {List} from "./List";
 import {ValuesItemDto} from "aya.mysql.querylizer";
 
-export default class Item {
+export class Item {
 
   constructor(
     private readonly list: List,
@@ -22,10 +21,8 @@ export default class Item {
       .then((result) => result[0]);
   }
 
-  set(id: number | string, data?: ValuesItemDto): Promise<number | undefined> {
-    return this
-      .rid(id)
-      .then(() => this.add(id, data));
+  set(id: number | string, data?: ValuesItemDto): Promise<number> {
+    return this.list.replace({...data, [this.id]: id});
   }
 
   add(id: number | string | undefined, data: ValuesItemDto = {}): Promise<number | undefined> {
@@ -61,4 +58,8 @@ export default class Item {
         }
       });
   }
+}
+
+export interface GenerateDto {
+  (count: number): number | string;
 }

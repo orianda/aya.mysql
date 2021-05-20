@@ -1,8 +1,7 @@
 import {Result, Row} from "@mysql/xdevapi";
 import {expect} from "chai";
 import sinon, {SinonSpy} from "sinon";
-import {PoolDto} from "./pool.dto";
-import List from './List';
+import {List} from './List';
 
 describe('List', () => {
 
@@ -12,7 +11,7 @@ describe('List', () => {
       sql: SinonSpy,
       close: SinonSpy
     };
-    let mysql: SinonSpy;
+    let pool: SinonSpy;
     let list: List;
 
     beforeEach(() => {
@@ -23,8 +22,8 @@ describe('List', () => {
         sql: sinon.spy(() => statement),
         close: sinon.spy(() => Promise.resolve())
       };
-      mysql = sinon.spy(() => Promise.resolve(session));
-      list = new List(mysql as unknown as PoolDto, 'table');
+      pool = sinon.spy(() => Promise.resolve(session));
+      list = new List(pool, 'table');
     });
 
     it('should count', () => {
@@ -34,8 +33,8 @@ describe('List', () => {
       return list
         .count()
         .then((issue) => {
-          expect(mysql.calledOnce).to.equal(true);
-          expect(mysql.calledWith()).to.equal(true);
+          expect(pool.calledOnce).to.equal(true);
+          expect(pool.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
           expect(session.sql.calledWith('SELECT COUNT(*) AS `amount` FROM `table`')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
@@ -51,8 +50,8 @@ describe('List', () => {
       return list
         .count({name: 'value'}, 10, 5)
         .then((issue) => {
-          expect(mysql.calledOnce).to.equal(true);
-          expect(mysql.calledWith()).to.equal(true);
+          expect(pool.calledOnce).to.equal(true);
+          expect(pool.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
           expect(session.sql.calledWith('SELECT COUNT(*) AS `amount` FROM `table` WHERE `name` = "value" LIMIT 5, 10')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
@@ -75,8 +74,8 @@ describe('List', () => {
       return list
         .select()
         .then((issue) => {
-          expect(mysql.calledOnce).to.equal(true);
-          expect(mysql.calledWith()).to.equal(true);
+          expect(pool.calledOnce).to.equal(true);
+          expect(pool.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
           expect(session.sql.calledWith('SELECT * FROM `table`')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
@@ -99,8 +98,8 @@ describe('List', () => {
       return list
         .select(['name'], {name: 'value'}, 10, 5, ['name'])
         .then((issue) => {
-          expect(mysql.calledOnce).to.equal(true);
-          expect(mysql.calledWith()).to.equal(true);
+          expect(pool.calledOnce).to.equal(true);
+          expect(pool.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
           expect(session.sql.calledWith('SELECT `name` FROM `table` WHERE `name` = "value" ORDER BY `name` ASC LIMIT 5, 10')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
@@ -116,8 +115,8 @@ describe('List', () => {
       return list
         .insert({name: 'value'})
         .then((issue) => {
-          expect(mysql.calledOnce).to.equal(true);
-          expect(mysql.calledWith()).to.equal(true);
+          expect(pool.calledOnce).to.equal(true);
+          expect(pool.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
           expect(session.sql.calledWith('INSERT INTO `table` SET `name` = "value"')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
@@ -133,8 +132,8 @@ describe('List', () => {
       return list
         .insert()
         .then((issue) => {
-          expect(mysql.calledOnce).to.equal(true);
-          expect(mysql.calledWith()).to.equal(true);
+          expect(pool.calledOnce).to.equal(true);
+          expect(pool.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
           expect(session.sql.calledWith('INSERT INTO `table` () VALUES ()')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
@@ -150,8 +149,8 @@ describe('List', () => {
       return list
         .update({name: 'value'})
         .then((issue) => {
-          expect(mysql.calledOnce).to.equal(true);
-          expect(mysql.calledWith()).to.equal(true);
+          expect(pool.calledOnce).to.equal(true);
+          expect(pool.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
           expect(session.sql.calledWith('UPDATE `table` SET `name` = "value"')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
@@ -167,8 +166,8 @@ describe('List', () => {
       return list
         .update({name: 'value'}, {name: 'equal'}, 10, 5, ['name'])
         .then((issue) => {
-          expect(mysql.calledOnce).to.equal(true);
-          expect(mysql.calledWith()).to.equal(true);
+          expect(pool.calledOnce).to.equal(true);
+          expect(pool.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
           expect(session.sql.calledWith('UPDATE `table` SET `name` = "value" WHERE `name` = "equal" ORDER BY `name` ASC LIMIT 5, 10')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
@@ -184,7 +183,7 @@ describe('List', () => {
       return list
         .update({})
         .then((issue) => {
-          expect(mysql.called).to.equal(false);
+          expect(pool.called).to.equal(false);
           expect(session.sql.called).to.equal(false);
           expect(session.close.called).to.equal(false);
           expect(issue).to.equal(0);
@@ -198,8 +197,8 @@ describe('List', () => {
       return list
         .replace({name: 'value'})
         .then((issue) => {
-          expect(mysql.calledOnce).to.equal(true);
-          expect(mysql.calledWith()).to.equal(true);
+          expect(pool.calledOnce).to.equal(true);
+          expect(pool.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
           expect(session.sql.calledWith('REPLACE `table` SET `name` = "value"')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
@@ -215,8 +214,8 @@ describe('List', () => {
       return list
         .replace({name: 'value'}, {name: 'equal'}, 10, 5, ['name'])
         .then((issue) => {
-          expect(mysql.calledOnce).to.equal(true);
-          expect(mysql.calledWith()).to.equal(true);
+          expect(pool.calledOnce).to.equal(true);
+          expect(pool.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
           expect(session.sql.calledWith('REPLACE `table` SET `name` = "value" WHERE `name` = "equal" ORDER BY `name` ASC LIMIT 5, 10')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
@@ -232,7 +231,7 @@ describe('List', () => {
       return list
         .replace({})
         .then((issue) => {
-          expect(mysql.called).to.equal(false);
+          expect(pool.called).to.equal(false);
           expect(session.sql.called).to.equal(false);
           expect(session.close.called).to.equal(false);
           expect(issue).to.equal(0);
@@ -246,8 +245,8 @@ describe('List', () => {
       return list
         .remove()
         .then((issue) => {
-          expect(mysql.calledOnce).to.equal(true);
-          expect(mysql.calledWith()).to.equal(true);
+          expect(pool.calledOnce).to.equal(true);
+          expect(pool.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
           expect(session.sql.calledWith('DELETE FROM `table`')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
@@ -263,8 +262,8 @@ describe('List', () => {
       return list
         .remove({name: 'value'}, 10, 5, ['name'])
         .then((issue) => {
-          expect(mysql.calledOnce).to.equal(true);
-          expect(mysql.calledWith()).to.equal(true);
+          expect(pool.calledOnce).to.equal(true);
+          expect(pool.calledWith()).to.equal(true);
           expect(session.sql.calledOnce).to.equal(true);
           expect(session.sql.calledWith('DELETE FROM `table` WHERE `name` = "value" ORDER BY `name` ASC LIMIT 5, 10')).to.equal(true);
           expect(session.close.calledOnce).to.equal(true);
@@ -304,8 +303,8 @@ describe('List', () => {
               sql: sinon.spy(() => statement),
               close: sinon.spy(() => close ? Promise.reject(error3) : Promise.resolve())
             };
-            const mysql = sinon.spy(() => sess ? Promise.reject(error1) : Promise.resolve(session));
-            list = new List(mysql as unknown as PoolDto, 'table');
+            const pool = sinon.spy(() => sess ? Promise.reject(error1) : Promise.resolve(session));
+            list = new List(pool, 'table');
           });
 
           ['submit', 'count', 'select', 'insert', 'update', 'replace', 'remove'].forEach((name) => {

@@ -1,7 +1,7 @@
 import {expect} from "chai";
 import sinon, {SinonSpy} from "sinon";
-import Item from "./Item";
-import List from "./List";
+import {List} from "./List";
+import {Item} from "./Item";
 
 describe('Item', () => {
   let list: {
@@ -9,6 +9,7 @@ describe('Item', () => {
     select: SinonSpy,
     insert: SinonSpy,
     update: SinonSpy,
+    replace: SinonSpy,
     remove: SinonSpy
   };
   let item: Item;
@@ -19,6 +20,7 @@ describe('Item', () => {
       select: sinon.spy(),
       insert: sinon.spy(),
       update: sinon.spy(),
+      replace: sinon.spy(),
       remove: sinon.spy(),
     };
     item = new Item(list as any as List, 'id');
@@ -82,11 +84,11 @@ describe('Item', () => {
   });
 
   it('should update empty', () => {
-    list.update = sinon.spy(() => Promise.resolve(1));
+    list.update = sinon.spy(() => Promise.resolve(0));
     return item
       .mod(123)
       .then((issue) => {
-        expect(issue).to.equal(true);
+        expect(issue).to.equal(false);
         expect(list.update.calledOnce).to.equal(true);
         expect(list.update.calledWith(undefined, {id: 123}, 1)).to.equal(true);
       });
@@ -105,30 +107,24 @@ describe('Item', () => {
   });
 
   it('should replace', () => {
-    sinon.stub(item, 'rid').returns(Promise.resolve(true));
-    sinon.stub(item, 'add').returns(Promise.resolve(1234));
+    list.replace = sinon.spy(() => Promise.resolve(1));
     return item
       .set(123, {name: 'value'})
       .then((issue) => {
-        expect(issue).to.equal(1234);
-        expect((item.rid as SinonSpy).calledOnce).to.equal(true);
-        expect((item.rid as SinonSpy).calledWith(123)).to.equal(true);
-        expect((item.add as SinonSpy).calledOnce).to.equal(true);
-        expect((item.add as SinonSpy).calledWith(123, {name: 'value'})).to.equal(true);
+        expect(issue).to.equal(1);
+        expect(list.replace.calledOnce).to.equal(true);
+        expect(list.replace.calledWith({id: 123, name: 'value'})).to.equal(true);
       });
   });
 
   it('should replace empty', () => {
-    sinon.stub(item, 'rid').returns(Promise.resolve(true));
-    sinon.stub(item, 'add').returns(Promise.resolve(1234));
+    list.replace = sinon.spy(() => Promise.resolve(1));
     return item
       .set(123)
       .then((issue) => {
-        expect(issue).to.equal(1234);
-        expect((item.rid as SinonSpy).calledOnce).to.equal(true);
-        expect((item.rid as SinonSpy).calledWith(123)).to.equal(true);
-        expect((item.add as SinonSpy).calledOnce).to.equal(true);
-        expect((item.add as SinonSpy).calledWith(123, undefined)).to.equal(true);
+        expect(issue).to.equal(1);
+        expect(list.replace.calledOnce).to.equal(true);
+        expect(list.replace.calledWith({id: 123})).to.equal(true);
       });
   });
 

@@ -1,20 +1,15 @@
 import {expect} from "chai";
-import pool from ".";
-import {List, Item} from ".";
-import libPool from "./pool";
-import libList from "./List";
-import libItem from "./Item";
+import {Item, List, Pool} from ".";
+import {Pool as PoolLib} from "./Pool";
+import {List as ListLib} from "./List";
+import {Item as ItemLib} from "./Item";
 
-describe('pool', () => {
-  const srv: {
-    [name: string]: any;
-  } = {pool,List,Item};
-  const lib: {
-    [name: string]: any;
-  } = {
-    pool:libPool,
-    List:libList,
-    Item:libItem
+describe('index', () => {
+  const srv: Record<string, any> = {Pool, List, Item};
+  const lib: Record<string, any> = {
+    Pool: PoolLib,
+    List: ListLib,
+    Item: ItemLib
   };
 
   Object

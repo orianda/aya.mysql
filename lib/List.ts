@@ -1,4 +1,4 @@
-import {Result} from "@mysql/xdevapi";
+import {Column, Row, SqlResult} from "@mysql/xdevapi";
 import {
   AmountDto,
   NamesDto,
@@ -10,33 +10,18 @@ import {
   ValuesListDto,
   WhereDto
 } from "aya.mysql.querylizer";
-import {PoolDto} from "./pool.dto";
+import {Pool} from "./Pool";
 
-export default class List {
+export class List {
 
   private querylize: Table;
 
   constructor(
-    private readonly pool: PoolDto,
-    public readonly table: string
+    private readonly pool: Pool['pool'],
+    public readonly table: string,
+    public readonly schema?: string
   ) {
-    this.querylize = new Table(table);
-  }
-
-  submit(query: string): Promise<Result> {
-    return this
-      .pool()
-      .then((session) => {
-        const promise1 = session
-          .sql(query)
-          .execute();
-        const promise2 = promise1
-          .then(() => undefined, () => undefined)
-          .then(() => session.close());
-        return Promise
-          .all([promise1, promise2])
-          .then(([result]) => result);
-      });
+    this.querylize = new Table(table, schema);
   }
 
   count(where?: WhereDto, amount?: AmountDto, offset?: OffsetDto): Promise<number> {
@@ -52,15 +37,11 @@ export default class List {
       .submit(query)
       .then((result) => {
         const rows = result.getResults()[0];
-        if (!rows) {
-          return [];
-        }
-
         const cols = result
           .getColumns()
-          .map((col) => col.getColumnName());
+          .map((col: Column) => col.getColumnName());
         return rows
-          .map((row) => {
+          .map((row: Row) => {
             const list = row.toArray();
             const data: ValuesItemDto = {};
             for (let i = 0, l = cols.length; i < l; i++) {
@@ -106,5 +87,21 @@ export default class List {
     return this
       .submit(query)
       .then((result) => result.getAffectedItemsCount());
+  }
+
+  private submit(query: string): Promise<SqlResult> {
+    return this
+      .pool()
+      .then((session) => {
+        const promise1 = session
+          .sql(query)
+          .execute();
+        const promise2 = promise1
+          .then(() => undefined, () => undefined)
+          .then(() => session.close());
+        return Promise
+          .all([promise1, promise2])
+          .then(([result]) => result);
+      });
   }
 }
