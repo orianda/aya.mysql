@@ -108,6 +108,26 @@ describe('List', () => {
         });
     });
 
+    it('should select none', () => {
+      result = {
+        getColumns: () => [{
+          getColumnName: () => 'name'
+        }],
+        getResults: () => []
+      };
+      return list
+        .select()
+        .then((issue) => {
+          expect(pool.calledOnce).to.equal(true);
+          expect(pool.calledWith()).to.equal(true);
+          expect(session.sql.calledOnce).to.equal(true);
+          expect(session.sql.calledWith('SELECT * FROM `table`')).to.equal(true);
+          expect(session.close.calledOnce).to.equal(true);
+          expect(session.close.calledWith()).to.equal(true);
+          expect(issue).to.deep.equal([]);
+        });
+    });
+
     it('should insert', () => {
       result = {
         getAutoIncrementValue: () => 1

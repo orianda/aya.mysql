@@ -1,26 +1,19 @@
-import {Client, getClient, Session, URI} from "@mysql/xdevapi";
+import {getSession, Session, URI} from "@mysql/xdevapi";
 import {List} from "./List";
 import {Item} from "./Item";
 
 export class Pool {
 
   private readonly schema: string;
-  private readonly client: Client;
+  private readonly config: Omit<PoolOptions, 'schema'>;
 
   constructor({schema, ...connection}: PoolOptions) {
     this.schema = schema;
-    this.client = getClient(connection, {
-      pooling: {
-        enabled: true,
-        maxSize: 1,
-        maxIdleTime: 1000,
-        queueTimeout: 2000
-      }
-    });
+    this.config = connection;
   }
 
   pool(): Promise<Session> {
-    return this.client.getSession();
+    return getSession(this.config);
   }
 
   list(table: string, schema: string = this.schema): PoolList {

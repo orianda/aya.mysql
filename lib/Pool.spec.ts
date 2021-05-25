@@ -1,20 +1,18 @@
-import mysql, {Client, Session} from "@mysql/xdevapi";
+import mysql, {Session} from "@mysql/xdevapi";
 import {expect} from "chai";
 import sinon, {SinonSpy} from "sinon";
 import {Pool} from "./Pool";
 import {List} from "./List";
 import {Item} from "./Item";
 
-describe('pool', () => {
+describe('Pool', () => {
   const session = {};
   let pool: Pool;
 
   beforeEach(() => {
     sinon
-      .stub(mysql, 'getClient')
-      .returns({
-        getSession: () => Promise.resolve(session)
-      } as Client);
+      .stub(mysql, 'getSession')
+      .returns(Promise.resolve(session));
     pool = new Pool({
       host: 'host',
       port: 123456,
@@ -62,14 +60,5 @@ describe('pool', () => {
     const list = pool.list('table');
     const item = list.item('id');
     expect(item).to.be.instanceOf(Item);
-  });
-
-  it('should get client', () => {
-    expect((mysql.getClient as SinonSpy).getCall(0).args[0]).to.deep.equal({
-      host: 'host',
-      port: 123456,
-      user: 'user',
-      password: 'password'
-    });
   });
 });
