@@ -3,7 +3,7 @@ import { List } from "./List";
 import { Item } from "./Item";
 export declare class Pool {
     private readonly schema;
-    private readonly client;
+    private readonly config;
     constructor({ schema, ...connection }: PoolOptions);
     pool(): Promise<Session>;
     list(table: string, schema?: string): PoolList;

@@ -19,17 +19,10 @@ class Pool {
     constructor(_a) {
         var { schema } = _a, connection = __rest(_a, ["schema"]);
         this.schema = schema;
-        this.client = xdevapi_1.getClient(connection, {
-            pooling: {
-                enabled: true,
-                maxSize: 1,
-                maxIdleTime: 1000,
-                queueTimeout: 2000
-            }
-        });
+        this.config = connection;
     }
     pool() {
-        return this.client.getSession();
+        return xdevapi_1.getSession(this.config);
     }
     list(table, schema = this.schema) {
         const pool = this.pool.bind(this);
