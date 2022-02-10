@@ -2,91 +2,40 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.List = void 0;
 const aya_mysql_querylizer_1 = require("aya.mysql.querylizer");
+const Item_1 = require("./Item");
 class List {
-    constructor(pool, table, schema) {
-        this.pool = pool;
+    constructor(doer, table, schema) {
+        this.doer = doer;
         this.table = table;
         this.schema = schema;
         this.querylize = new aya_mysql_querylizer_1.Table(table, schema);
     }
+    item(id) {
+        return new Item_1.Item(this, id);
+    }
     count(where, amount, offset) {
         const query = this.querylize.count(where, amount, offset);
-        return this
-            .submit(query)
-            .then((result) => result.toArray()[0][0][0]);
+        return this.doer.count(query);
     }
     select(names, where, amount, offset, order) {
         const query = this.querylize.select(names, where, amount, offset, order);
-        return this
-            .submit(query)
-            .then((result) => {
-            const rows = result.getResults()[0];
-            if (!rows) {
-                return [];
-            }
-            const cols = result
-                .getColumns()
-                .map((col) => col.getColumnName());
-            return rows
-                .map((row) => {
-                const list = row.toArray();
-                const data = {};
-                for (let i = 0, l = cols.length; i < l; i++) {
-                    const name = cols[i];
-                    data[name] = list[i];
-                }
-                return data;
-            });
-        });
+        return this.doer.select(query);
     }
     insert(values) {
         const query = this.querylize.insert(values);
-        return this
-            .submit(query)
-            .then((result) => result.getAutoIncrementValue());
+        return this.doer.insert(query);
     }
     update(values, where, amount, offset, order) {
         const query = this.querylize.update(values, where, amount, offset, order);
-        if (query) {
-            return this
-                .submit(query)
-                .then((result) => result.getAffectedItemsCount());
-        }
-        else {
-            return Promise.resolve(0);
-        }
+        return query ? this.doer.update(query) : Promise.resolve(0);
     }
     replace(values, where, amount, offset, order) {
         const query = this.querylize.replace(values, where, amount, offset, order);
-        if (query) {
-            return this
-                .submit(query)
-                .then((result) => result.getAffectedItemsCount());
-        }
-        else {
-            return Promise.resolve(0);
-        }
+        return query ? this.doer.replace(query) : Promise.resolve(0);
     }
     remove(where, amount, offset, order) {
         const query = this.querylize.remove(where, amount, offset, order);
-        return this
-            .submit(query)
-            .then((result) => result.getAffectedItemsCount());
-    }
-    submit(query) {
-        return this
-            .pool()
-            .then((session) => {
-            const promise1 = session
-                .sql(query)
-                .execute();
-            const promise2 = promise1
-                .then(() => undefined, () => undefined)
-                .then(() => session.close());
-            return Promise
-                .all([promise1, promise2])
-                .then(([result]) => result);
-        });
+        return this.doer.remove(query);
     }
 }
 exports.List = List;

@@ -30,9 +30,9 @@ export interface Session {
   // connect(): Promise<Session>;
   //
   // reset(): Promise<void>;
-  //
-  // close(): Promise<void>;
-  //
+
+  close(): Promise<void>;
+
   // disconnect(): Promise<void>;
   //
   // inspect(): Record<'auth' | 'host' | 'pooling' | 'port' | 'schema' | 'socket' | 'ssl' | 'user' | any>;

@@ -1,10 +1,11 @@
+import {ItemGenerate} from "./Item.types";
 import {List} from "./List";
 import {ValuesItemDto} from "aya.mysql.querylizer";
 
 export class Item {
 
   constructor(
-    private readonly list: List,
+    public readonly list: List,
     public readonly id: string
   ) {
   }
@@ -43,7 +44,7 @@ export class Item {
       .then((result) => result > 0);
   }
 
-  append(data: ValuesItemDto, generate: GenerateDto, bounces: number = 32): Promise<string | number> {
+  append(data: ValuesItemDto, generate: ItemGenerate, bounces: number = 32): Promise<string | number> {
     const id = generate(bounces);
     return this
       .add(id, data)
@@ -58,8 +59,4 @@ export class Item {
         }
       });
   }
-}
-
-export interface GenerateDto {
-  (count: number): number | string;
 }

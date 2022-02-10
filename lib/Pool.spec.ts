@@ -1,9 +1,9 @@
-import mysql, {Session} from "@mysql/xdevapi";
+import mysql from "@mysql/xdevapi";
 import {expect} from "chai";
-import sinon, {SinonSpy} from "sinon";
+import {describe} from "mocha";
+import sinon from "sinon";
+import {Doer} from "./Doer";
 import {Pool} from "./Pool";
-import {List} from "./List";
-import {Item} from "./Item";
 
 describe('Pool', () => {
   const session = {};
@@ -12,7 +12,7 @@ describe('Pool', () => {
   beforeEach(() => {
     sinon
       .stub(mysql, 'getSession')
-      .returns(Promise.resolve(session));
+      .resolves(session);
     pool = new Pool({
       host: 'host',
       port: 123456,
@@ -30,35 +30,39 @@ describe('Pool', () => {
     expect(pool).to.be.instanceOf(Pool);
   });
 
-  it('should have pool property', () => {
-    expect(pool.pool).to.be.a('function');
-  });
+  describe('constructor', () => {
 
-  it('should create session', () => {
-    return pool
-      .pool()
-      .then((issue: Session) => {
-        expect(issue).to.equal(session);
+    it('should have schema', () => {
+      expect(pool.schema).to.equal('schema');
+    });
+
+    it('should have config', () => {
+      expect(pool.config).to.deep.equal({
+        host: 'host',
+        port: 123456,
+        user: 'user',
+        password: 'password'
       });
+    });
   });
 
-  it('should have list property', () => {
-    expect(pool.list).to.be.a('function');
+  describe('doer', () => {
+
+    it('should create doer', () => {
+      const doer = pool.doer();
+
+      expect(doer).to.be.instanceOf(Doer);
+    });
   });
 
-  it('should create list', () => {
-    const list = pool.list('table');
-    expect(list).to.be.instanceOf(List);
-  });
+  describe('open', () => {
 
-  it('should have item property', () => {
-    const list = pool.list('table');
-    expect(list.item).to.be.a('function');
-  });
-
-  it('should create item', () => {
-    const list = pool.list('table');
-    const item = list.item('id');
-    expect(item).to.be.instanceOf(Item);
+    it('should create session', () => {
+      return pool
+        .open()
+        .then((issue) => {
+          expect(issue).to.equal(session);
+        });
+    });
   });
 });

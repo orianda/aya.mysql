@@ -1,30 +1,32 @@
 import {expect} from "chai";
 import sinon, {SinonSpy} from "sinon";
-import {List} from "./List";
+import {Doer} from "./Doer";
 import {Item} from "./Item";
+import {List} from "./List";
 
 describe('Item', () => {
-  let list: {
+  const list: {
+    doer: Doer;
+    table: string;
+    item: SinonSpy;
     count: SinonSpy,
     select: SinonSpy,
     insert: SinonSpy,
     update: SinonSpy,
     replace: SinonSpy,
     remove: SinonSpy
+  } = {
+    doer: {} as Doer,
+    table: 'table',
+    item: sinon.spy(),
+    count: sinon.spy(),
+    select: sinon.spy(),
+    insert: sinon.spy(),
+    update: sinon.spy(),
+    replace: sinon.spy(),
+    remove: sinon.spy()
   };
-  let item: Item;
-
-  beforeEach(() => {
-    list = {
-      count: sinon.spy(),
-      select: sinon.spy(),
-      insert: sinon.spy(),
-      update: sinon.spy(),
-      replace: sinon.spy(),
-      remove: sinon.spy(),
-    };
-    item = new Item(list as any as List, 'id');
-  });
+  const item = new Item(list as unknown as List, 'id');
 
   it('should exist', () => {
     list.count = sinon.spy(() => Promise.resolve(1));
@@ -176,22 +178,22 @@ describe('Item', () => {
     const data = {name: 'value'};
 
     it('should append on first try', () => {
-      const generate = sinon.spy((count: number) => 1);
-      sinon.stub(item, 'add').returns(Promise.resolve(1));
+      const generate = sinon.spy((_count: number) => 1);
+      list.insert = sinon.spy(() => Promise.resolve(1));
       return item
         .append(data, generate)
         .then((issue) => {
           expect(issue).to.equal(1);
           expect(generate.calledOnce).to.equal(true);
           expect(generate.calledWith(32)).to.equal(true);
-          expect((item.add as SinonSpy).calledOnce).to.equal(true);
-          expect((item.add as SinonSpy).calledWith(issue, data)).to.equal(true);
+          expect((list.insert as SinonSpy).calledOnce).to.equal(true);
+          expect((list.insert as SinonSpy).calledWith({...data, id: 1})).to.equal(true);
         });
     });
 
     it('should append on last try', () => {
       const generate = sinon.spy((generate) => generate);
-      sinon.stub(item, 'add').callsFake((id) => id ? Promise.reject({code: 'ER_DUP_ENTRY'}) : Promise.resolve(1));
+      list.insert = sinon.spy(({id}) => id ? Promise.reject({code: 'ER_DUP_ENTRY'}) : Promise.resolve(1));
       return item
         .append(data, generate)
         .then((issue) => {
@@ -199,15 +201,13 @@ describe('Item', () => {
           expect(generate.callCount).to.equal(33);
           expect(generate.firstCall.args).to.deep.equal([32]);
           expect(generate.lastCall.args).to.deep.equal([0]);
-          expect((item.add as SinonSpy).callCount).to.equal(33);
-          expect((item.add as SinonSpy).firstCall.args).to.deep.equal([32, data]);
-          expect((item.add as SinonSpy).lastCall.args).to.deep.equal([0, data]);
+          expect((list.insert as SinonSpy).callCount).to.equal(33);
         });
     });
 
     it('should not append', () => {
       const generate = sinon.spy(() => 1);
-      sinon.stub(item, 'add').returns(Promise.reject({code: 'ER_DUP_ENTRY'}));
+      list.insert = sinon.spy(() => Promise.reject({code: 'ER_DUP_ENTRY'}));
       return item
         .append(data, generate)
         .then(() => {
@@ -218,13 +218,13 @@ describe('Item', () => {
           expect(generate.callCount).to.equal(33);
           expect(generate.firstCall.args).to.deep.equal([32]);
           expect(generate.lastCall.args).to.deep.equal([0]);
-          expect((item.add as SinonSpy).callCount).to.equal(33);
+          expect((list.insert as SinonSpy).callCount).to.equal(33);
         });
     });
 
     it('should have 3 attempts', () => {
       const generate = sinon.spy(() => 1);
-      sinon.stub(item, 'add').returns(Promise.reject({code: 'ER_DUP_ENTRY'}));
+      list.insert = sinon.spy(() => Promise.reject({code: 'ER_DUP_ENTRY'}));
       return item
         .append(data, generate, 3)
         .then(() => {
@@ -235,14 +235,14 @@ describe('Item', () => {
           expect(generate.callCount).to.equal(4);
           expect(generate.firstCall.args).to.deep.equal([3]);
           expect(generate.lastCall.args).to.deep.equal([0]);
-          expect((item.add as SinonSpy).callCount).to.equal(4);
+          expect((list.insert as SinonSpy).callCount).to.equal(4);
         });
     });
 
     it('should forward unexpected error', () => {
       const generate = sinon.spy(() => 1);
       const error = new Error();
-      sinon.stub(item, 'add').returns(Promise.reject(error));
+      list.insert = sinon.spy(() => Promise.reject(error));
       return item
         .append(data, generate, 3)
         .then(() => {
@@ -254,7 +254,7 @@ describe('Item', () => {
 
     it('should forward undefined rejection', () => {
       const generate = sinon.spy(() => 1);
-      sinon.stub(item, 'add').returns(Promise.reject());
+      list.insert = sinon.spy(() => Promise.reject());
       return item
         .append(data, generate, 3)
         .then(() => {

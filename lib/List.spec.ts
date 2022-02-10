@@ -1,344 +1,301 @@
-import {Result, Row} from "@mysql/xdevapi";
 import {expect} from "chai";
+import {describe} from "mocha";
 import sinon, {SinonSpy} from "sinon";
+import {Item} from "./Item";
 import {List} from './List';
+import {Pool} from "./Pool";
 
 describe('List', () => {
 
-  describe('success case', () => {
-    let result: Partial<Result>;
-    let session: {
-      sql: SinonSpy,
-      close: SinonSpy
-    };
-    let pool: SinonSpy;
-    let list: List;
+  const doer: {
+    pool: Pool;
+    list: SinonSpy;
+    count: SinonSpy;
+    select: SinonSpy;
+    insert: SinonSpy;
+    update: SinonSpy;
+    replace: SinonSpy;
+    remove: SinonSpy;
+    submit: SinonSpy;
+  } = {
+    pool: {} as Pool,
+    list: sinon.spy(() => undefined),
+    count: sinon.spy(() => Promise.resolve(0)),
+    select: sinon.spy(() => Promise.resolve([])),
+    insert: sinon.spy(() => Promise.resolve(1)),
+    update: sinon.spy(() => Promise.resolve(2)),
+    replace: sinon.spy(() => Promise.resolve(3)),
+    remove: sinon.spy(() => Promise.resolve(4)),
+    submit: sinon.spy(() => Promise.resolve())
+  };
+  const list = new List(doer, 'table');
 
-    beforeEach(() => {
-      const statement = {
-        execute: () => Promise.resolve(result)
-      }
-      session = {
-        sql: sinon.spy(() => statement),
-        close: sinon.spy(() => Promise.resolve())
-      };
-      pool = sinon.spy(() => Promise.resolve(session));
-      list = new List(pool, 'table');
+  it('should be a list', () => {
+    expect(list).to.be.instanceOf(List);
+  });
+
+  describe('item', () => {
+
+    it('should have item property', () => {
+      expect(list.item).to.be.a('function');
     });
 
-    it('should count', () => {
-      result = {
-        toArray: () => [[[0]]]
-      };
-      return list
-        .count()
-        .then((issue) => {
-          expect(pool.calledOnce).to.equal(true);
-          expect(pool.calledWith()).to.equal(true);
-          expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('SELECT COUNT(*) AS `amount` FROM `table`')).to.equal(true);
-          expect(session.close.calledOnce).to.equal(true);
-          expect(session.close.calledWith()).to.equal(true);
-          expect(issue).to.equal(0);
-        });
+    it('should create item', () => {
+      const item = list.item('id');
+
+      expect(item).to.be.instanceof(Item);
     });
 
-    it('should count partial', () => {
-      result = {
-        toArray: () => [[[0]]]
-      };
-      return list
-        .count({name: 'value'}, 10, 5)
-        .then((issue) => {
-          expect(pool.calledOnce).to.equal(true);
-          expect(pool.calledWith()).to.equal(true);
-          expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('SELECT COUNT(*) AS `amount` FROM `table` WHERE `name` = "value" LIMIT 5, 10')).to.equal(true);
-          expect(session.close.calledOnce).to.equal(true);
-          expect(session.close.calledWith()).to.equal(true);
-          expect(issue).to.equal(0);
-        });
-    });
+    it('should have id', () => {
+      const item = list.item('id');
 
-    it('should select', () => {
-      result = {
-        getColumns: () => [{
-          getColumnName: () => 'name'
-        }],
-        getResults: () => [[{
-          toArray: () => ['value1']
-        } as any as Row, {
-          toArray: () => ['value2']
-        } as any as Row]]
-      };
-      return list
-        .select()
-        .then((issue) => {
-          expect(pool.calledOnce).to.equal(true);
-          expect(pool.calledWith()).to.equal(true);
-          expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('SELECT * FROM `table`')).to.equal(true);
-          expect(session.close.calledOnce).to.equal(true);
-          expect(session.close.calledWith()).to.equal(true);
-          expect(issue).to.deep.equal([{name: 'value1'}, {name: 'value2'}]);
-        });
-    });
-
-    it('should select partial', () => {
-      result = {
-        getColumns: () => [{
-          getColumnName: () => 'name'
-        }],
-        getResults: () => [[{
-          toArray: () => ['value1']
-        } as any as Row, {
-          toArray: () => ['value2']
-        } as any as Row]]
-      };
-      return list
-        .select(['name'], {name: 'value'}, 10, 5, ['name'])
-        .then((issue) => {
-          expect(pool.calledOnce).to.equal(true);
-          expect(pool.calledWith()).to.equal(true);
-          expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('SELECT `name` FROM `table` WHERE `name` = "value" ORDER BY `name` ASC LIMIT 5, 10')).to.equal(true);
-          expect(session.close.calledOnce).to.equal(true);
-          expect(session.close.calledWith()).to.equal(true);
-          expect(issue).to.deep.equal([{name: 'value1'}, {name: 'value2'}]);
-        });
-    });
-
-    it('should select none', () => {
-      result = {
-        getColumns: () => [{
-          getColumnName: () => 'name'
-        }],
-        getResults: () => []
-      };
-      return list
-        .select()
-        .then((issue) => {
-          expect(pool.calledOnce).to.equal(true);
-          expect(pool.calledWith()).to.equal(true);
-          expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('SELECT * FROM `table`')).to.equal(true);
-          expect(session.close.calledOnce).to.equal(true);
-          expect(session.close.calledWith()).to.equal(true);
-          expect(issue).to.deep.equal([]);
-        });
-    });
-
-    it('should insert', () => {
-      result = {
-        getAutoIncrementValue: () => 1
-      };
-      return list
-        .insert({name: 'value'})
-        .then((issue) => {
-          expect(pool.calledOnce).to.equal(true);
-          expect(pool.calledWith()).to.equal(true);
-          expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('INSERT INTO `table` SET `name` = "value"')).to.equal(true);
-          expect(session.close.calledOnce).to.equal(true);
-          expect(session.close.calledWith()).to.equal(true);
-          expect(issue).to.equal(1);
-        });
-    });
-
-    it('should insert empty row', () => {
-      result = {
-        getAutoIncrementValue: () => 1
-      };
-      return list
-        .insert()
-        .then((issue) => {
-          expect(pool.calledOnce).to.equal(true);
-          expect(pool.calledWith()).to.equal(true);
-          expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('INSERT INTO `table` () VALUES ()')).to.equal(true);
-          expect(session.close.calledOnce).to.equal(true);
-          expect(session.close.calledWith()).to.equal(true);
-          expect(issue).to.equal(1);
-        });
-    });
-
-    it('should update', () => {
-      result = {
-        getAffectedItemsCount: () => 1
-      };
-      return list
-        .update({name: 'value'})
-        .then((issue) => {
-          expect(pool.calledOnce).to.equal(true);
-          expect(pool.calledWith()).to.equal(true);
-          expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('UPDATE `table` SET `name` = "value"')).to.equal(true);
-          expect(session.close.calledOnce).to.equal(true);
-          expect(session.close.calledWith()).to.equal(true);
-          expect(issue).to.equal(1);
-        });
-    });
-
-    it('should update partial', () => {
-      result = {
-        getAffectedItemsCount: () => 1
-      };
-      return list
-        .update({name: 'value'}, {name: 'equal'}, 10, 5, ['name'])
-        .then((issue) => {
-          expect(pool.calledOnce).to.equal(true);
-          expect(pool.calledWith()).to.equal(true);
-          expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('UPDATE `table` SET `name` = "value" WHERE `name` = "equal" ORDER BY `name` ASC LIMIT 5, 10')).to.equal(true);
-          expect(session.close.calledOnce).to.equal(true);
-          expect(session.close.calledWith()).to.equal(true);
-          expect(issue).to.equal(1);
-        });
-    });
-
-    it('should update nothing', () => {
-      result = {
-        getAffectedItemsCount: () => 1
-      };
-      return list
-        .update({})
-        .then((issue) => {
-          expect(pool.called).to.equal(false);
-          expect(session.sql.called).to.equal(false);
-          expect(session.close.called).to.equal(false);
-          expect(issue).to.equal(0);
-        });
-    });
-
-    it('should replace', () => {
-      result = {
-        getAffectedItemsCount: () => 1
-      };
-      return list
-        .replace({name: 'value'})
-        .then((issue) => {
-          expect(pool.calledOnce).to.equal(true);
-          expect(pool.calledWith()).to.equal(true);
-          expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('REPLACE `table` SET `name` = "value"')).to.equal(true);
-          expect(session.close.calledOnce).to.equal(true);
-          expect(session.close.calledWith()).to.equal(true);
-          expect(issue).to.equal(1);
-        });
-    });
-
-    it('should replace partial', () => {
-      result = {
-        getAffectedItemsCount: () => 1
-      };
-      return list
-        .replace({name: 'value'}, {name: 'equal'}, 10, 5, ['name'])
-        .then((issue) => {
-          expect(pool.calledOnce).to.equal(true);
-          expect(pool.calledWith()).to.equal(true);
-          expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('REPLACE `table` SET `name` = "value" WHERE `name` = "equal" ORDER BY `name` ASC LIMIT 5, 10')).to.equal(true);
-          expect(session.close.calledOnce).to.equal(true);
-          expect(session.close.calledWith()).to.equal(true);
-          expect(issue).to.equal(1);
-        });
-    });
-
-    it('should replace nothing', () => {
-      result = {
-        getAffectedItemsCount: () => 1
-      };
-      return list
-        .replace({})
-        .then((issue) => {
-          expect(pool.called).to.equal(false);
-          expect(session.sql.called).to.equal(false);
-          expect(session.close.called).to.equal(false);
-          expect(issue).to.equal(0);
-        });
-    });
-
-    it('should remove', () => {
-      result = {
-        getAffectedItemsCount: () => 1
-      };
-      return list
-        .remove()
-        .then((issue) => {
-          expect(pool.calledOnce).to.equal(true);
-          expect(pool.calledWith()).to.equal(true);
-          expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('DELETE FROM `table`')).to.equal(true);
-          expect(session.close.calledOnce).to.equal(true);
-          expect(session.close.calledWith()).to.equal(true);
-          expect(issue).to.equal(1);
-        });
-    });
-
-    it('should remove partial', () => {
-      result = {
-        getAffectedItemsCount: () => 1
-      };
-      return list
-        .remove({name: 'value'}, 10, 5, ['name'])
-        .then((issue) => {
-          expect(pool.calledOnce).to.equal(true);
-          expect(pool.calledWith()).to.equal(true);
-          expect(session.sql.calledOnce).to.equal(true);
-          expect(session.sql.calledWith('DELETE FROM `table` WHERE `name` = "value" ORDER BY `name` ASC LIMIT 5, 10')).to.equal(true);
-          expect(session.close.calledOnce).to.equal(true);
-          expect(session.close.calledWith()).to.equal(true);
-          expect(issue).to.equal(1);
-        });
+      expect(item.id).to.equal('id');
     });
   });
 
-  describe('error case', () => {
-    const error1 = new Error();
-    const error2 = new Error();
-    const error3 = new Error();
+  describe('count', () => {
 
-    Array
-      .from(new Array(3 ** 2 - 1), (_, index) => index)
-      .slice(1)
-      .map((value) => value.toString(2))
-      .map((value) => value.padStart(3, '0'))
-      .map((value) => value.split(''))
-      .map((value) => value.map((value) => value === '1'))
-      .forEach(([sess, exec, close]) => {
+    describe('exists', () => {
 
-        describe(JSON.stringify({sess, exec, close}), () => {
-          const error = sess ? error1 : exec ? error2 : close ? error3 : undefined;
-          let session: {
-            sql: SinonSpy,
-            close: SinonSpy
-          };
-          let list: List;
-
-          beforeEach(() => {
-            const statement = {
-              execute: () => exec ? Promise.reject(error2) : Promise.resolve()
-            }
-            session = {
-              sql: sinon.spy(() => statement),
-              close: sinon.spy(() => close ? Promise.reject(error3) : Promise.resolve())
-            };
-            const pool = sinon.spy(() => sess ? Promise.reject(error1) : Promise.resolve(session));
-            list = new List(pool, 'table');
-          });
-
-          ['submit', 'count', 'select', 'insert', 'update', 'replace', 'remove'].forEach((name) => {
-
-            it(`should fail for ${name}`, () => {
-              return (list as any)[name]({some: 'data'})
-                .then(() => {
-                  expect(false).to.equal(true);
-                }, (issue: Error) => {
-                  expect(issue).to.equal(error);
-                });
-            });
-          });
-        });
+      beforeEach(() => {
+        doer.count = sinon.spy(() => Promise.resolve(1));
       });
+
+      it('should fetch', () => list
+        .count({name: 'value'}, 10, 5)
+        .then((issue) => {
+          expect(issue).to.equal(1);
+        }));
+
+      it('should forward query', () => list
+        .count({name: 'value'}, 10, 5)
+        .then(() => {
+          expect(doer.count.args).to.deep.equal([['SELECT COUNT(*) AS `amount` FROM `table` WHERE `name` = "value" LIMIT 5, 10']]);
+        }));
+    });
+
+    describe('empty', () => {
+
+      beforeEach(() => {
+        doer.count = sinon.spy(() => Promise.resolve(1));
+      });
+
+      it('should fetch', () => list
+        .count()
+        .then((issue) => {
+          expect(issue).to.equal(1);
+        }));
+
+      it('should forward query', () => list
+        .count()
+        .then(() => {
+          expect(doer.count.args).to.deep.equal([['SELECT COUNT(*) AS `amount` FROM `table`']]);
+        }));
+    });
+  });
+
+  describe('select', () => {
+
+    describe('exists', () => {
+
+      beforeEach(() => {
+        doer.select = sinon.spy(() => Promise.resolve([{column: 'value'}]));
+      });
+
+      it('should fetch', () => list
+        .select(['name'], {name: 'value'}, 10, 5, ['name'])
+        .then((issue) => {
+          expect(issue).to.deep.equal([{column: 'value'}]);
+        }));
+
+      it('should forward query', () => list
+        .select(['name'], {name: 'value'}, 10, 5, ['name'])
+        .then(() => {
+          expect(doer.select.args).to.deep.equal([['SELECT `name` FROM `table` WHERE `name` = "value" ORDER BY `name` ASC LIMIT 5, 10']]);
+        }));
+    });
+
+    describe('empty', () => {
+
+      beforeEach(() => {
+        doer.select = sinon.spy(() => Promise.resolve([{column: 'value'}]));
+      });
+
+      it('should fetch', () => list
+        .select()
+        .then((issue) => {
+          expect(issue).to.deep.equal([{column: 'value'}]);
+        }));
+
+      it('should forward query', () => list
+        .select()
+        .then(() => {
+          expect(doer.select.args).to.deep.equal([['SELECT * FROM `table`']]);
+        }));
+    });
+  });
+
+  describe('insert', () => {
+
+    describe('exists', () => {
+
+      beforeEach(() => {
+        doer.insert = sinon.spy(() => Promise.resolve(1));
+      });
+
+      it('should fetch', () => list
+        .insert({name: 'value'})
+        .then((issue) => {
+          expect(issue).to.equal(1);
+        }));
+
+      it('should forward query', () => list
+        .insert({name: 'value'})
+        .then(() => {
+          expect(doer.insert.args).to.deep.equal([['INSERT INTO `table` SET `name` = "value"']]);
+        }));
+    });
+
+    describe('empty', () => {
+
+      beforeEach(() => {
+        doer.insert = sinon.spy(() => Promise.resolve(1));
+      });
+
+      it('should fetch', () => list
+        .insert()
+        .then((issue) => {
+          expect(issue).to.equal(1);
+        }));
+
+      it('should forward query', () => list
+        .insert()
+        .then(() => {
+          expect(doer.insert.args).to.deep.equal([['INSERT INTO `table` () VALUES ()']]);
+        }));
+    });
+  });
+
+  describe('update', () => {
+
+    describe('exists', () => {
+
+      beforeEach(() => {
+        doer.update = sinon.spy(() => Promise.resolve(1));
+      });
+
+      it('should fetch', () => list
+        .update({name: 'value'}, {name: 'equal'}, 10, 5, ['name'])
+        .then((issue) => {
+          expect(issue).to.equal(1);
+        }));
+
+      it('should forward query', () => list
+        .update({name: 'value'}, {name: 'equal'}, 10, 5, ['name'])
+        .then(() => {
+          expect(doer.update.args).to.deep.equal([['UPDATE `table` SET `name` = "value" WHERE `name` = "equal" ORDER BY `name` ASC LIMIT 5, 10']]);
+        }));
+    });
+
+    describe('empty', () => {
+
+      beforeEach(() => {
+        doer.update = sinon.spy(() => Promise.resolve(1));
+      });
+
+      it('should fetch', () => list
+        .update()
+        .then((issue) => {
+          expect(issue).to.equal(0);
+        }));
+
+      it('should forward query', () => list
+        .update()
+        .then(() => {
+          expect(doer.update.args).to.deep.equal([]);
+        }));
+    });
+  });
+
+  describe('replace', () => {
+
+    describe('exists', () => {
+
+      beforeEach(() => {
+        doer.replace = sinon.spy(() => Promise.resolve(1));
+      });
+
+      it('should fetch', () => list
+        .replace({name: 'value'}, {name: 'equal'}, 10, 5, ['name'])
+        .then((issue) => {
+          expect(issue).to.equal(1);
+        }));
+
+      it('should forward query', () => list
+        .replace({name: 'value'}, {name: 'equal'}, 10, 5, ['name'])
+        .then(() => {
+          expect(doer.replace.args).to.deep.equal([['REPLACE `table` SET `name` = "value" WHERE `name` = "equal" ORDER BY `name` ASC LIMIT 5, 10']]);
+        }));
+    });
+
+    describe('empty', () => {
+
+      beforeEach(() => {
+        doer.replace = sinon.spy(() => Promise.resolve(1));
+      });
+
+      it('should fetch', () => list
+        .replace()
+        .then((issue) => {
+          expect(issue).to.equal(0);
+        }));
+
+      it('should forward query', () => list
+        .replace()
+        .then(() => {
+          expect(doer.replace.args).to.deep.equal([]);
+        }));
+    });
+  });
+
+  describe('remove', () => {
+
+    describe('exists', () => {
+
+      beforeEach(() => {
+        doer.remove = sinon.spy(() => Promise.resolve(1));
+      });
+
+      it('should fetch', () => list
+        .remove({name: 'value'}, 10, 5, ['name'])
+        .then((issue) => {
+          expect(issue).to.equal(1);
+        }));
+
+      it('should forward query', () => list
+        .remove({name: 'value'}, 10, 5, ['name'])
+        .then(() => {
+          expect(doer.remove.args).to.deep.equal([['DELETE FROM `table` WHERE `name` = "value" ORDER BY `name` ASC LIMIT 5, 10']]);
+        }));
+    });
+
+    describe('empty', () => {
+
+      beforeEach(() => {
+        doer.remove = sinon.spy(() => Promise.resolve(1));
+      });
+
+      it('should fetch', () => list
+        .remove()
+        .then((issue) => {
+          expect(issue).to.equal(1);
+        }));
+
+      it('should forward query', () => list
+        .remove()
+        .then(() => {
+          expect(doer.remove.args).to.deep.equal([['DELETE FROM `table`']]);
+        }));
+    });
   });
 });

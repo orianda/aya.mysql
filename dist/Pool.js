@@ -13,22 +13,18 @@ var __rest = (this && this.__rest) || function (s, e) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Pool = void 0;
 const xdevapi_1 = require("@mysql/xdevapi");
-const List_1 = require("./List");
-const Item_1 = require("./Item");
+const Doer_1 = require("./Doer");
 class Pool {
     constructor(_a) {
         var { schema } = _a, connection = __rest(_a, ["schema"]);
         this.schema = schema;
         this.config = connection;
     }
-    pool() {
-        return xdevapi_1.getSession(this.config);
+    doer() {
+        return new Doer_1.Doer(this);
     }
-    list(table, schema = this.schema) {
-        const pool = this.pool.bind(this);
-        const list = new List_1.List(pool, table, schema);
-        const item = (id) => new Item_1.Item(list, id);
-        return Object.assign(list, { item });
+    open() {
+        return (0, xdevapi_1.getSession)(this.config);
     }
 }
 exports.Pool = Pool;

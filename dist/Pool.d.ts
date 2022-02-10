@@ -1,22 +1,10 @@
-import { Session, URI } from "@mysql/xdevapi";
-import { List } from "./List";
-import { Item } from "./Item";
+import { Session } from "@mysql/xdevapi";
+import { Doer } from "./Doer";
+import { PoolOptions } from "./Pool.types";
 export declare class Pool {
-    private readonly schema;
-    private readonly config;
+    readonly schema: PoolOptions['schema'];
+    readonly config: Omit<PoolOptions, 'schema'>;
     constructor({ schema, ...connection }: PoolOptions);
-    pool(): Promise<Session>;
-    list(table: string, schema?: string): PoolList;
-}
-export interface PoolOptions extends URI {
-    host: URI['host'];
-    port: URI['port'];
-    user: URI['user'];
-    password: URI['password'];
-    schema: string;
-}
-export interface PoolList extends List {
-    item(id: string): PoolItem;
-}
-export interface PoolItem extends Item {
+    doer(): Doer;
+    open(): Promise<Session>;
 }

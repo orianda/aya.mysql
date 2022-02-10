@@ -5,7 +5,7 @@ import {MetadataCursor} from "./MetadataCursor";
 
 export interface SqlExecute extends Statement {
 
-  execute(rowcb: RowCursor, metacb?: MetadataCursor): SqlResult;
+  execute(rowcb: RowCursor, metacb?: MetadataCursor): Promise<SqlResult>;
 
   bind(values: ReadonlyArray<string>): this;
 
