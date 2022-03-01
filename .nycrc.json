@@ -1,5 +1,8 @@
 {
   "all": true,
+  "extension": [
+    ".ts"
+  ],
   "include": [
     "lib/**/*.ts"
   ],

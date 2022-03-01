@@ -4,7 +4,8 @@
   "reporter": "spec",
   "reporter-option": [],
   "require": [
-    "ts-node/register"
+    "ts-node/register",
+    "source-map-support/register"
   ],
   "spec": [
     "lib/**/*.spec.ts"
