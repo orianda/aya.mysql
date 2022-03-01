@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "@mysql/xdevapi": "^8.0.28",
-    "aya.mysql.querylizer": "github:orianda/aya.mysql.querylizer"
+    "aya.mysql.querylizer": "github:orianda/aya.mysql.querylizer#3832c79c"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",
