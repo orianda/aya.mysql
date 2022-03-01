@@ -1,18 +1,9 @@
-import {
-  AmountDto,
-  NamesDto,
-  OffsetDto,
-  OrderDto,
-  Table,
-  ValuesDto,
-  ValuesListDto,
-  WhereDto
-} from "aya.mysql.querylizer";
+import {AmountDto, NamesDto, OffsetDto, OrderDto, Table, ValueDto, WhereDto} from "aya.mysql.querylizer";
 import {Doer} from "./Doer";
 import {Item} from "./Item";
 import {PoolOptions} from "./Pool.types";
 
-export class List {
+export class List<Data extends Record<string | number, ValueDto>> {
 
   private querylize: Table;
 
@@ -24,8 +15,8 @@ export class List {
     this.querylize = new Table(table, schema);
   }
 
-  item(id: string): Item {
-    return new Item(this, id);
+  item<Id extends keyof Data>(id: Id): Item<Id, Data> {
+    return new Item<Id, Data>(this, id);
   }
 
   count(where?: WhereDto, amount?: AmountDto, offset?: OffsetDto): Promise<number> {
@@ -33,22 +24,22 @@ export class List {
     return this.doer.count(query);
   }
 
-  select(names?: NamesDto, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<ValuesListDto> {
+  select(names?: NamesDto, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<ReadonlyArray<Data>> {
     const query = this.querylize.select(names, where, amount, offset, order);
-    return this.doer.select(query);
+    return this.doer.select<Data>(query);
   }
 
-  insert(values?: ValuesDto): Promise<number | undefined> {
+  insert(values: Data): Promise<number> {
     const query = this.querylize.insert(values);
     return this.doer.insert(query);
   }
 
-  update(values?: ValuesDto, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<number> {
+  update(values: Partial<Data>, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<number> {
     const query = this.querylize.update(values, where, amount, offset, order);
     return query ? this.doer.update(query) : Promise.resolve(0);
   }
 
-  replace(values?: ValuesDto, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<number> {
+  replace(values: Data, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<number> {
     const query = this.querylize.replace(values, where, amount, offset, order);
     return query ? this.doer.replace(query) : Promise.resolve(0);
   }

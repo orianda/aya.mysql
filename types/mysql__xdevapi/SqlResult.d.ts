@@ -6,5 +6,5 @@ export interface SqlResult extends RowResult {
 
   hasData(): boolean,
 
-  toArray(): ReadonlyArray<ReadonlyArray<ReadonlyArray<any>>>;
+  toArray(): ReadonlyArray<ReadonlyArray<ReadonlyArray<unknown>>>;
 }

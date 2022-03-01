@@ -163,13 +163,13 @@ describe('List', () => {
       });
 
       it('should fetch', () => list
-        .insert()
+        .insert({})
         .then((issue) => {
           expect(issue).to.equal(1);
         }));
 
       it('should forward query', () => list
-        .insert()
+        .insert({})
         .then(() => {
           expect(doer.insert.args).to.deep.equal([['INSERT INTO `table` () VALUES ()']]);
         }));
@@ -204,13 +204,13 @@ describe('List', () => {
       });
 
       it('should fetch', () => list
-        .update()
+        .update({})
         .then((issue) => {
           expect(issue).to.equal(0);
         }));
 
       it('should forward query', () => list
-        .update()
+        .update({})
         .then(() => {
           expect(doer.update.args).to.deep.equal([]);
         }));
@@ -245,13 +245,13 @@ describe('List', () => {
       });
 
       it('should fetch', () => list
-        .replace()
+        .replace({})
         .then((issue) => {
           expect(issue).to.equal(0);
         }));
 
       it('should forward query', () => list
-        .replace()
+        .replace({})
         .then(() => {
           expect(doer.replace.args).to.deep.equal([]);
         }));

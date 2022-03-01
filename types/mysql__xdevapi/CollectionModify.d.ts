@@ -7,17 +7,17 @@ import {Result} from "./Result";
 
 export interface CollectionModify extends Binding, Limiting, CollectionOrdering, Query, Updating {
 
-  arrayAppend(field: string, any: any): this;
+  arrayAppend(field: string, unknown: unknown): this;
 
   arrayDelete(field: string): this;
 
-  arrayInsert(field: string, any: any): this;
+  arrayInsert(field: string, unknown: unknown): this;
 
   execute(): Result;
 
-  patch(properties: Record<string, any>): this;
+  patch(properties: Record<string, unknown>): this;
 
-  set(field: string, any: any): this;
+  set(field: string, unknown: unknown): this;
 
   unset(fields: ReadonlyArray<string>): this;
 

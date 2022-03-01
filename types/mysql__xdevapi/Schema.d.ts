@@ -33,7 +33,7 @@ export interface CreateCollectionOptions {
 }
 
 export interface SchemaValidationOptions {
-  schema?: Record<string, any>;
+  schema?: Record<string, unknown>;
   level?: ValidationLevel;
 }
 

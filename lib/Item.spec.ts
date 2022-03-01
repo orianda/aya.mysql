@@ -1,5 +1,6 @@
 import {expect} from "chai";
 import sinon, {SinonSpy} from "sinon";
+import {ValueDto} from "aya.mysql.querylizer";
 import {Doer} from "./Doer";
 import {Item} from "./Item";
 import {List} from "./List";
@@ -26,7 +27,7 @@ describe('Item', () => {
     replace: sinon.spy(),
     remove: sinon.spy()
   };
-  const item = new Item(list as unknown as List, 'id');
+  const item = new Item<'id', Record<string, ValueDto>>(list as unknown as List<Record<string, ValueDto>>, 'id');
 
   it('should exist', () => {
     list.count = sinon.spy(() => Promise.resolve(1));
@@ -88,11 +89,10 @@ describe('Item', () => {
   it('should update empty', () => {
     list.update = sinon.spy(() => Promise.resolve(0));
     return item
-      .mod(123)
+      .mod(123, {})
       .then((issue) => {
         expect(issue).to.equal(false);
-        expect(list.update.calledOnce).to.equal(true);
-        expect(list.update.calledWith(undefined, {id: 123}, 1)).to.equal(true);
+        expect(list.update.args).to.deep.equal([[{}, {id: 123}, 1]]);
       });
   });
 
@@ -103,8 +103,7 @@ describe('Item', () => {
       .mod(123, data)
       .then((issue) => {
         expect(issue).to.equal(false);
-        expect(list.update.calledOnce).to.equal(true);
-        expect(list.update.calledWith(data, {id: 123}, 1)).to.equal(true);
+        expect(list.update.args).to.deep.equal([[data, {id: 123}, 1]]);
       });
   });
 
@@ -113,20 +112,18 @@ describe('Item', () => {
     return item
       .set(123, {name: 'value'})
       .then((issue) => {
-        expect(issue).to.equal(1);
-        expect(list.replace.calledOnce).to.equal(true);
-        expect(list.replace.calledWith({id: 123, name: 'value'})).to.equal(true);
+        expect(issue).to.equal(true);
+        expect(list.replace.args).to.deep.equal([[{id: 123, name: 'value'}]]);
       });
   });
 
   it('should replace empty', () => {
     list.replace = sinon.spy(() => Promise.resolve(1));
     return item
-      .set(123)
+      .set(123, {})
       .then((issue) => {
-        expect(issue).to.equal(1);
-        expect(list.replace.calledOnce).to.equal(true);
-        expect(list.replace.calledWith({id: 123})).to.equal(true);
+        expect(issue).to.equal(true);
+        expect(list.replace.args).to.deep.equal([[{id: 123}]]);
       });
   });
 
@@ -135,20 +132,18 @@ describe('Item', () => {
     return item
       .add(123, {name: 'value'})
       .then((issue) => {
-        expect(issue).to.equal(undefined);
-        expect(list.insert.calledOnce).to.equal(true);
-        expect(list.insert.calledWith({name: 'value', id: 123})).to.equal(true);
+        expect(issue).to.equal(false);
+        expect(list.insert.args).to.deep.equal([[{name: 'value', id: 123}]]);
       });
   });
 
   it('should insert empty', () => {
     list.insert = sinon.spy(() => Promise.resolve(undefined));
     return item
-      .add(123)
+      .add(123, {})
       .then((issue) => {
-        expect(issue).to.equal(undefined);
-        expect(list.insert.calledOnce).to.equal(true);
-        expect(list.insert.calledWith({id: 123})).to.equal(true);
+        expect(issue).to.equal(false);
+        expect(list.insert.args).to.deep.equal([[{id: 123}]]);
       });
   });
 
@@ -178,7 +173,7 @@ describe('Item', () => {
     const data = {name: 'value'};
 
     it('should append on first try', () => {
-      const generate = sinon.spy((_count: number) => 1);
+      const generate = sinon.spy((count: number) => 1);
       list.insert = sinon.spy(() => Promise.resolve(1));
       return item
         .append(data, generate)

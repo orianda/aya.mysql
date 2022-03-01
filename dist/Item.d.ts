@@ -1,15 +1,14 @@
-import { ItemGenerate } from "./Item.types";
+import { ValueDto } from "aya.mysql.querylizer";
 import { List } from "./List";
-import { ValuesItemDto } from "aya.mysql.querylizer";
-export declare class Item {
-    readonly list: List;
-    readonly id: string;
-    constructor(list: List, id: string);
-    has(id: number | string): Promise<boolean>;
-    get(id: number | string): Promise<ValuesItemDto>;
-    set(id: number | string, data?: ValuesItemDto): Promise<number>;
-    add(id: number | string | undefined, data?: ValuesItemDto): Promise<number | undefined>;
-    mod(id: number | string, data?: ValuesItemDto): Promise<boolean>;
-    rid(id: number | string): Promise<boolean>;
-    append(data: ValuesItemDto, generate: ItemGenerate, bounces?: number): Promise<string | number>;
+export declare class Item<Id extends keyof Data, Data extends Record<string, ValueDto>> {
+    readonly list: List<Data>;
+    readonly id: Id;
+    constructor(list: List<Data>, id: Id);
+    has(id: Data[Id]): Promise<boolean>;
+    get(id: Data[Id]): Promise<Data>;
+    set(id: Data[Id], data: Data): Promise<boolean>;
+    add(id: Data[Id], data: Data): Promise<boolean>;
+    mod(id: Data[Id], data: Data): Promise<boolean>;
+    rid(id: Data[Id]): Promise<boolean>;
+    append(data: Data, generate: (bounce: number) => Data[Id], bounces?: number): Promise<Data[Id]>;
 }

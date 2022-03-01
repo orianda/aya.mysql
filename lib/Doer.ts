@@ -1,5 +1,5 @@
 import {Column, Row, SqlResult} from "@mysql/xdevapi";
-import {ValuesItemDto, ValuesListDto} from "aya.mysql.querylizer";
+import {ValueDto, ValuesItemDto} from "aya.mysql.querylizer";
 import {List} from "./List";
 import {Pool} from "./Pool";
 import {PoolOptions} from "./Pool.types";
@@ -11,8 +11,8 @@ export class Doer {
   ) {
   }
 
-  list(table: string, schema?: PoolOptions['schema']): List {
-    return new List(this, table, schema || this.pool.schema);
+  list<Data extends Record<string | number, ValueDto>>(table: string, schema?: PoolOptions['schema']): List<Data> {
+    return new List<Data>(this, table, schema || this.pool.schema);
   }
 
   count(query: string, values?: ReadonlyArray<string>): Promise<number> {
@@ -21,7 +21,7 @@ export class Doer {
       .then((result) => result.toArray()[0][0][0]);
   }
 
-  select(query: string, values?: ReadonlyArray<string>): Promise<ValuesListDto> {
+  select<T extends Record<string, ValueDto>>(query: string, values?: ReadonlyArray<string>): Promise<ReadonlyArray<T>> {
     return this
       .submit(query, values)
       .then((result) => {
@@ -46,7 +46,7 @@ export class Doer {
       });
   }
 
-  insert(query: string, values?: ReadonlyArray<string>): Promise<number | undefined> {
+  insert(query: string, values?: ReadonlyArray<string>): Promise<number> {
     return this
       .submit(query, values)
       .then((result) => result.getAutoIncrementValue());

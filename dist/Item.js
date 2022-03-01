@@ -17,12 +17,15 @@ class Item {
             .then((result) => result[0]);
     }
     set(id, data) {
-        return this.list.replace(Object.assign(Object.assign({}, data), { [this.id]: id }));
+        return this.list
+            .replace(Object.assign(Object.assign({}, data), { [this.id]: id }))
+            .then((result) => result > 0);
     }
-    add(id, data = {}) {
+    add(id, data) {
         data[this.id] = id;
         return this.list
-            .insert(data);
+            .insert(data)
+            .then((result) => result > 0);
     }
     mod(id, data) {
         return this.list

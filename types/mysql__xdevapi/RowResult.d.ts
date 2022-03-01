@@ -4,9 +4,9 @@ import {Row} from "./Row";
 
 export interface RowResult extends BaseResult {
 
-  fetchAll(): ReadonlyArray<ReadonlyArray<any>>;
+  fetchAll(): ReadonlyArray<ReadonlyArray<unknown>>;
 
-  fetchOne(): ReadonlyArray<any>;
+  fetchOne(): ReadonlyArray<unknown>;
 
   getAffectedItemsCount(): number;
 
@@ -16,6 +16,6 @@ export interface RowResult extends BaseResult {
 
   nextResult(): boolean;
 
-  toArray(): ReadonlyArray<ReadonlyArray<ReadonlyArray<any>>>;
+  toArray(): ReadonlyArray<ReadonlyArray<ReadonlyArray<unknown>>>;
 }
 

@@ -1,3 +1,3 @@
 export interface MetadataCursor {
-  (metadata: ReadonlyArray<Record<string, any>>): void;
+  (metadata: ReadonlyArray<Record<string, unknown>>): void;
 }

@@ -5,8 +5,8 @@ import {List as ListLib} from "./List";
 import {Item as ItemLib} from "./Item";
 
 describe('index', () => {
-  const srv: Record<string, any> = {Pool, List, Item};
-  const lib: Record<string, any> = {
+  const srv: Record<string, unknown> = {Pool, List, Item};
+  const lib: Record<string, unknown> = {
     Pool: PoolLib,
     List: ListLib,
     Item: ItemLib

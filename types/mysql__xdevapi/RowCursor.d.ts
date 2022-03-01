@@ -1,3 +1,3 @@
 export interface RowCursor {
-  (items: ReadonlyArray<any>): void;
+  (items: ReadonlyArray<unknown>): void;
 }

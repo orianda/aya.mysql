@@ -8,9 +8,9 @@ import {CollectionModify} from "./CollectionModify";
 
 export interface Collection extends DatabaseObject {
 
-  add(expr: string | Record<string, any> | ReadonlyArray<string | Record<string, any>>): CollectionAdd;
+  add(expr: string | Record<string, unknown> | ReadonlyArray<string | Record<string, unknown>>): CollectionAdd;
 
-  addOrReplaceOne(id: string, data: Record<string, any>): Promise<Result>;
+  addOrReplaceOne(id: string, data: Record<string, unknown>): Promise<Result>;
 
   count(): Promise<number>;
 
@@ -22,11 +22,11 @@ export interface Collection extends DatabaseObject {
 
   find(expr: string): CollectionFind;
 
-  getOne(id: string): Record<string, any>;
+  getOne(id: string): Record<string, unknown>;
 
   getSchema(): Schema;
 
-  inspect(): Record<string, any>;
+  inspect(): Record<string, unknown>;
 
   modify(expr: string): CollectionModify;
 
@@ -34,7 +34,7 @@ export interface Collection extends DatabaseObject {
 
   removeOne(id: string): Result;
 
-  replaceOne(id: string, data: Record<string, any>): Result;
+  replaceOne(id: string, data: Record<string, unknown>): Result;
 }
 
 export interface IndexDefinition {

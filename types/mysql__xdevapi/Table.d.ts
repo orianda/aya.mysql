@@ -17,11 +17,11 @@ export interface Table extends DatabaseObject {
 
   getSchema(): Schema;
 
-  insert(fields: ReadonlyArray<string> | Record<string, any>): TableInsert;
+  insert(fields: ReadonlyArray<string> | Record<string, unknown>): TableInsert;
 
   insert(...fields: ReadonlyArray<string>): TableInsert;
 
-  inspect(): Record<string, any>;
+  inspect(): Record<string, unknown>;
 
   isView(): Promise<boolean>;
 

@@ -1,3 +1,3 @@
 export interface DocumentCursor {
-  (object: Record<string, any>): void;
+  (object: Record<string, unknown>): void;
 }

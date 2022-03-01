@@ -4,7 +4,7 @@ import {Result} from "./Result";
 
 export interface CollectionAdd extends Inserting, Query {
 
-  add(input: Record<string, any> | ReadonlyArray<Record<string, any>>): this;
+  add(input: Record<string, unknown> | ReadonlyArray<Record<string, unknown>>): this;
 
   execute(): Promise<Result>;
 }

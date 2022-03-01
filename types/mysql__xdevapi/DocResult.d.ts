@@ -1,8 +1,8 @@
 export interface DocResult {
 
-  fetchAll(): ReadonlyArray<Record<string, any>>;
+  fetchAll(): ReadonlyArray<Record<string, unknown>>;
 
-  fetchOne(): Record<string, any>;
+  fetchOne(): Record<string, unknown>;
 
-  toArray(): ReadonlyArray<any>;
+  toArray(): ReadonlyArray<unknown>;
 }

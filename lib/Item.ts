@@ -1,50 +1,52 @@
-import {ItemGenerate} from "./Item.types";
+import {ValueDto} from "aya.mysql.querylizer";
 import {List} from "./List";
-import {ValuesItemDto} from "aya.mysql.querylizer";
 
-export class Item {
+export class Item<Id extends keyof Data, Data extends Record<string, ValueDto>> {
 
   constructor(
-    public readonly list: List,
-    public readonly id: string
+    public readonly list: List<Data>,
+    public readonly id: Id
   ) {
   }
 
-  has(id: number | string): Promise<boolean> {
+  has(id: Data[Id]): Promise<boolean> {
     return this.list
       .count({[this.id]: id}, 1)
       .then((result) => result > 0);
   }
 
-  get(id: number | string): Promise<ValuesItemDto> {
+  get(id: Data[Id]): Promise<Data> {
     return this.list
       .select(undefined, {[this.id]: id}, 1)
       .then((result) => result[0]);
   }
 
-  set(id: number | string, data?: ValuesItemDto): Promise<number> {
-    return this.list.replace({...data, [this.id]: id});
+  set(id: Data[Id], data: Data): Promise<boolean> {
+    return this.list
+      .replace({...data, [this.id]: id})
+      .then((result) => result > 0);
   }
 
-  add(id: number | string | undefined, data: ValuesItemDto = {}): Promise<number | undefined> {
+  add(id: Data[Id], data: Data): Promise<boolean> {
     data[this.id] = id;
     return this.list
-      .insert(data);
+      .insert(data)
+      .then((result) => result > 0);
   }
 
-  mod(id: number | string, data?: ValuesItemDto): Promise<boolean> {
+  mod(id: Data[Id], data: Data): Promise<boolean> {
     return this.list
       .update(data, {[this.id]: id}, 1)
       .then((amount) => amount > 0);
   }
 
-  rid(id: number | string): Promise<boolean> {
+  rid(id: Data[Id]): Promise<boolean> {
     return this.list
       .remove({[this.id]: id}, 1)
       .then((result) => result > 0);
   }
 
-  append(data: ValuesItemDto, generate: ItemGenerate, bounces: number = 32): Promise<string | number> {
+  append(data: Data, generate: (bounce: number) => Data[Id], bounces = 32): Promise<Data[Id]> {
     const id = generate(bounces);
     return this
       .add(id, data)

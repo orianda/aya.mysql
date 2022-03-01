@@ -1,14 +1,3 @@
-import {FieldDefinition, IndexDefinition} from "./Collection";
-import {
-  CreateCollectionOptions,
-  ModifyCollectionOptions,
-  SchemaMetadata,
-  SchemaValidationOptions,
-  ValidationLevel
-} from "./Schema";
-import {WarningLevel} from "./Warning";
-import {ColMetadata} from "./Row";
-
 export declare module '@mysql/xdevapi' {
 
   export {Client} from "./Client";
@@ -43,7 +32,7 @@ export declare module '@mysql/xdevapi' {
   export {TableUpdate} from "./TableUpdate";
   export {Warning, WarningLevel} from "./Warning";
 
-  export function expr(value: string, options?: ParserOptions): any;
+  export function expr(value: string, options?: ParserOptions): unknown;
 
   export interface ParserOptions {
     mode: Mode;
@@ -65,7 +54,7 @@ export declare module '@mysql/xdevapi' {
     ssl?: boolean;
     tls?: TLSOptions;
     connectTimeout?: number;
-    connectionAttributes?: Record<string, any>;
+    connectionAttributes?: Record<string, unknown>;
   }
 
   export enum AuthMethod {

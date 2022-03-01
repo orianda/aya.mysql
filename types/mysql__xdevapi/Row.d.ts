@@ -3,7 +3,7 @@ export interface Row {
 
   setColumnMetadata(metadata: ReadonlyArray<ColMetadata>): this;
 
-  toArray(): ReadonlyArray<any>;
+  toArray(): ReadonlyArray<unknown>;
 
   toJSON(): RowJSON;
 
@@ -40,7 +40,7 @@ export interface ColMetadata {
 
   getTypeId(): number;
 
-  getTypeString(): any;
+  getTypeString(): unknown;
 
   isBinary(): boolean;
 
@@ -54,7 +54,7 @@ export interface ColMetadata {
 }
 
 export interface ColMetadataValue {
-  array: ReadonlyArray<any>;
+  array: ReadonlyArray<unknown>;
 }
 
 export enum ColMetadataType {
@@ -88,7 +88,7 @@ export interface ColMetadataJSON {
 }
 
 export interface RowJSON {
-  fields: ReadonlyArray<any>;
+  fields: ReadonlyArray<unknown>;
 }
 
 export interface RowValue {

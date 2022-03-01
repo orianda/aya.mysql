@@ -2,9 +2,9 @@ import {Session} from "./Session";
 
 export interface Statement {
 
-  addArgs(args: ReadonlyArray<any>): this;
+  addArgs(args: ReadonlyArray<unknown>): this;
 
-  getArgs(): ReadonlyArray<any>;
+  getArgs(): ReadonlyArray<unknown>;
 
   getNamespace(): Namespace;
 
