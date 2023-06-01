@@ -19,30 +19,30 @@ class Item {
     set(id, data) {
         return this.list
             .replace(Object.assign(Object.assign({}, data), { [this.id]: id }))
-            .then((result) => result > 0);
+            .then((result) => !!result);
     }
     add(id, data) {
         data[this.id] = id;
         return this.list
             .insert(data)
-            .then((result) => result > 0);
+            .then((result) => !!result);
     }
     mod(id, data) {
         return this.list
             .update(data, { [this.id]: id }, 1)
-            .then((amount) => amount > 0);
+            .then((amount) => !!amount);
     }
     rid(id) {
         return this.list
             .remove({ [this.id]: id }, 1)
-            .then((result) => result > 0);
+            .then((result) => !!result);
     }
     append(data, generate, bounces = 32) {
         const id = generate(bounces);
         return this
             .add(id, data)
             .then(() => id, (error) => {
-            if ((error === null || error === void 0 ? void 0 : error.code) !== 'ER_DUP_ENTRY') {
+            if (error && error.code !== 'ER_DUP_ENTRY') {
                 return Promise.reject(error);
             }
             else if (bounces > 0) {

@@ -10,8 +10,8 @@ export declare class List<Data extends Record<string | number, ValueDto>> {
     item<Id extends keyof Data>(id: Id): Item<Id, Data>;
     count(where?: WhereDto, amount?: AmountDto, offset?: OffsetDto): Promise<number>;
     select(names?: NamesDto, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<ReadonlyArray<Data>>;
-    insert(values: Data): Promise<number>;
-    update(values: Partial<Data>, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<number>;
-    replace(values: Data, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<number>;
-    remove(where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<number>;
+    insert(values: Data): Promise<string | number | bigint>;
+    update(values: Partial<Data>, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<string | number | bigint>;
+    replace(values: Data, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<string | number | bigint>;
+    remove(where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<string | number | bigint>;
 }

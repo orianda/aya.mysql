@@ -1,9 +1,9 @@
-import {expect} from "chai";
-import sinon, {SinonSpy} from "sinon";
-import {ValueDto} from "aya.mysql.querylizer";
-import {Doer} from "./Doer";
-import {Item} from "./Item";
-import {List} from "./List";
+import {ValueDto} from 'aya.mysql.querylizer';
+import {expect} from 'chai';
+import sinon, {SinonSpy} from 'sinon';
+import {Doer} from './Doer';
+import {Item} from './Item';
+import {List} from './List';
 
 describe('Item', () => {
   const list: {
@@ -181,13 +181,13 @@ describe('Item', () => {
           expect(issue).to.equal(1);
           expect(generate.calledOnce).to.equal(true);
           expect(generate.calledWith(32)).to.equal(true);
-          expect((list.insert as SinonSpy).calledOnce).to.equal(true);
-          expect((list.insert as SinonSpy).calledWith({...data, id: 1})).to.equal(true);
+          expect(list.insert.calledOnce).to.equal(true);
+          expect(list.insert.calledWith({...data, id: 1})).to.equal(true);
         });
     });
 
     it('should append on last try', () => {
-      const generate = sinon.spy((generate) => generate);
+      const generate = sinon.spy((generate: number): number => generate);
       list.insert = sinon.spy(({id}) => id ? Promise.reject({code: 'ER_DUP_ENTRY'}) : Promise.resolve(1));
       return item
         .append(data, generate)
@@ -196,7 +196,7 @@ describe('Item', () => {
           expect(generate.callCount).to.equal(33);
           expect(generate.firstCall.args).to.deep.equal([32]);
           expect(generate.lastCall.args).to.deep.equal([0]);
-          expect((list.insert as SinonSpy).callCount).to.equal(33);
+          expect(list.insert.callCount).to.equal(33);
         });
     });
 
@@ -213,7 +213,7 @@ describe('Item', () => {
           expect(generate.callCount).to.equal(33);
           expect(generate.firstCall.args).to.deep.equal([32]);
           expect(generate.lastCall.args).to.deep.equal([0]);
-          expect((list.insert as SinonSpy).callCount).to.equal(33);
+          expect(list.insert.callCount).to.equal(33);
         });
     });
 
@@ -230,7 +230,7 @@ describe('Item', () => {
           expect(generate.callCount).to.equal(4);
           expect(generate.firstCall.args).to.deep.equal([3]);
           expect(generate.lastCall.args).to.deep.equal([0]);
-          expect((list.insert as SinonSpy).callCount).to.equal(4);
+          expect(list.insert.callCount).to.equal(4);
         });
     });
 
@@ -255,7 +255,7 @@ describe('Item', () => {
         .then(() => {
           expect(false).to.equal(true);
         }, (issue: Error) => {
-          expect(issue).to.be.equal(undefined);
+          expect(issue).to.equal(undefined);
         });
     });
   });

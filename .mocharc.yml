@@ -1,0 +1,77 @@
+# Rules & Behavior
+allow-uncaught: false      # Allow uncaught errors to propagate
+async-only: false          # Require all tests to use a callback (async) or return a Promise
+bail: false                # Abort ("bail") after first test failure
+check-leaks: true          # Check for global variable leaks
+delay: false               # Delay initial execution of root suite
+dry-run: false             # Report tests without executing them
+exit: false                # Force Mocha to quit after tests complete
+fail-zero: false           # Fail test run if no test(s) encountered
+forbid-only: false         # Fail if exclusive test(s) encountered
+forbid-pending: false      # Fail if pending test(s) encountered
+globals: [ ]               # List of allowed global variables
+jobs: 1                    # Number of concurrent jobs for --parallel; use 1 to run in serial [default: (number of CPU cores - 1)]
+parallel: false            # Run tests in parallel
+retries: 1                 # Retry failed tests this many times
+slow: 75                   # Specify "slow" test threshold (in milliseconds) [default: 75]
+timeout: 2000              # Specify test timeout threshold (in milliseconds) [default: 2000]
+ui: bdd                    # Specify user interface [default: "bdd"]
+
+# Reporting & Output
+color: true                # Force-enable color output
+diff: true                 # Show diff on failure [default: true]
+full-trace: false          # Display full stack traces
+inline-diffs: false        # Display actual/expected differences inline within each string
+reporter: spec             # Specify reporter to use [default: "spec"]
+reporter-option: [ ]       # Reporter-specific options reporter-options (<k=v,[k1=v1,..]>)
+
+# Configuration
+node-option: # Node or V8 option (no leading "--")
+  - unhandled-rejections=strict
+package: package.json     # Path to package.json for config
+
+# File Handling
+extension: # File extension(s) to load [default: ["js","cjs","mjs"]
+  - js
+  - ts
+  - jsx
+  - tsx
+  - cjs
+  - mjs
+#file: [ ]                  # Specify file(s) to be loaded prior to root suite execution [default: (none)]
+ignore: # Ignore file(s) or glob pattern(s)
+  - ".git/**"
+  - ".idea/**"
+  - ".nyc_output/**"
+  - "build/**"
+  - "coverage/**"
+  - "node_modules/**"
+  - "var/**"
+recursive: false           # Look for tests in subdirectories
+require: # Require module [default: (none)]
+  - "ts-node/register"
+  - "source-map-support/register"
+sort: false                # Sort test files
+watch: false               # Watch files in the current working directory for changes
+watch-files: [ ]           # List of paths or globs to watch
+watch-ignore: [ ]          # List of paths or globs to exclude from watching [default: ["node_modules",".git"]]
+
+# Test Filters
+## fgrep and grep are mutually exclusive
+#fgrep: something           # Only run tests containing this string
+#grep: /something/i         # Only run tests matching this string or regexp
+#invert: false              # Inverts --grep and --fgrep matches
+
+# Positional Arguments
+spec: # One or more files, directories, or globs to test[default: ["test"]]
+  - "test/**"
+  - "**/*.spec.{js,ts,jsx,tsx,cjs,mjs}"
+
+# Notification
+growl: false               # Enable growl notifications
+
+# ???
+trace-warnings: true       # node flags ok
+
+# V8 flags
+v8-stack-trace-limit: 100  # V8 flags are prepended with "v8-"

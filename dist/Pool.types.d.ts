@@ -1,8 +1,8 @@
-import { URI } from "@mysql/xdevapi";
-export interface PoolOptions extends URI {
-    readonly host: URI['host'];
-    readonly port: URI['port'];
-    readonly user: URI['user'];
-    readonly password: URI['password'];
+import { ConnectionOptions } from "@mysql/xdevapi";
+export interface PoolOptions extends ConnectionOptions {
+    readonly host: ConnectionOptions['host'];
+    readonly port: ConnectionOptions['port'];
+    readonly user: ConnectionOptions['user'];
+    readonly password: ConnectionOptions['password'];
     readonly schema?: string;
 }

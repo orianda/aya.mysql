@@ -1,9 +1,9 @@
-import {expect} from "chai";
-import {describe} from "mocha";
-import sinon, {SinonSpy} from "sinon";
-import {Item} from "./Item";
+import {expect} from 'chai';
+import {describe} from 'mocha';
+import sinon, {SinonSpy} from 'sinon';
+import {Item} from './Item';
 import {List} from './List';
-import {Pool} from "./Pool";
+import {Pool} from './Pool';
 
 describe('List', () => {
 
@@ -37,7 +37,7 @@ describe('List', () => {
   describe('item', () => {
 
     it('should have item property', () => {
-      expect(list.item).to.be.a('function');
+      expect(typeof list.item).to.equal('function');
     });
 
     it('should create item', () => {
@@ -70,7 +70,10 @@ describe('List', () => {
       it('should forward query', () => list
         .count({name: 'value'}, 10, 5)
         .then(() => {
-          expect(doer.count.args).to.deep.equal([['SELECT COUNT(*) AS `amount` FROM `table` WHERE `name` = "value" LIMIT 5, 10']]);
+          expect(doer.count.args)
+            .to
+            .deep
+            .equal([['SELECT COUNT(*) AS `amount` FROM `table` WHERE `name` = "value" LIMIT 5, 10']]);
         }));
     });
 
@@ -111,7 +114,10 @@ describe('List', () => {
       it('should forward query', () => list
         .select(['name'], {name: 'value'}, 10, 5, ['name'])
         .then(() => {
-          expect(doer.select.args).to.deep.equal([['SELECT `name` FROM `table` WHERE `name` = "value" ORDER BY `name` ASC LIMIT 5, 10']]);
+          expect(doer.select.args)
+            .to
+            .deep
+            .equal([['SELECT `name` FROM `table` WHERE `name` = "value" ORDER BY `name` ASC LIMIT 5, 10']]);
         }));
     });
 
@@ -193,7 +199,10 @@ describe('List', () => {
       it('should forward query', () => list
         .update({name: 'value'}, {name: 'equal'}, 10, 5, ['name'])
         .then(() => {
-          expect(doer.update.args).to.deep.equal([['UPDATE `table` SET `name` = "value" WHERE `name` = "equal" ORDER BY `name` ASC LIMIT 5, 10']]);
+          expect(doer.update.args)
+            .to
+            .deep
+            .equal([['UPDATE `table` SET `name` = "value" WHERE `name` = "equal" ORDER BY `name` ASC LIMIT 5, 10']]);
         }));
     });
 
@@ -234,7 +243,10 @@ describe('List', () => {
       it('should forward query', () => list
         .replace({name: 'value'}, {name: 'equal'}, 10, 5, ['name'])
         .then(() => {
-          expect(doer.replace.args).to.deep.equal([['REPLACE `table` SET `name` = "value" WHERE `name` = "equal" ORDER BY `name` ASC LIMIT 5, 10']]);
+          expect(doer.replace.args)
+            .to
+            .deep
+            .equal([['REPLACE `table` SET `name` = "value" WHERE `name` = "equal" ORDER BY `name` ASC LIMIT 5, 10']]);
         }));
     });
 
@@ -275,7 +287,10 @@ describe('List', () => {
       it('should forward query', () => list
         .remove({name: 'value'}, 10, 5, ['name'])
         .then(() => {
-          expect(doer.remove.args).to.deep.equal([['DELETE FROM `table` WHERE `name` = "value" ORDER BY `name` ASC LIMIT 5, 10']]);
+          expect(doer.remove.args)
+            .to
+            .deep
+            .equal([['DELETE FROM `table` WHERE `name` = "value" ORDER BY `name` ASC LIMIT 5, 10']]);
         }));
     });
 

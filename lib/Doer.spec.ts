@@ -1,9 +1,10 @@
-import {expect} from "chai";
-import {describe} from "mocha";
-import sinon, {SinonSpy} from "sinon";
+import {Session} from '@mysql/xdevapi';
+import {expect} from 'chai';
+import {describe} from 'mocha';
+import sinon, {SinonSpy} from 'sinon';
 import {Doer} from './Doer';
-import {List} from "./List";
-import {Pool} from "./Pool";
+import {List} from './List';
+import {Pool} from './Pool';
 
 describe('Doer', () => {
   const pool: Pool = {
@@ -17,13 +18,10 @@ describe('Doer', () => {
     open: sinon.spy(() => Promise.resolve(session)),
     doer: sinon.spy(() => new Doer(pool))
   };
-  const session: {
-    sql: SinonSpy;
-    close: SinonSpy;
-  } = {
+  const session: Session = {
     sql: sinon.spy(() => execute),
     close: sinon.spy(() => Promise.resolve())
-  };
+  } as unknown as Session;
   const execute: {
     bind: SinonSpy;
     execute: SinonSpy;
@@ -63,7 +61,7 @@ describe('Doer', () => {
   describe('list', () => {
 
     it('should have list property', () => {
-      expect(doer.list).to.be.a('function');
+      expect(typeof doer.list).to.equal('function');
     });
 
     it('should create list', () => {
@@ -108,13 +106,13 @@ describe('Doer', () => {
     it('should call sql', () => doer
       .count('query', ['value'])
       .then(() => {
-        expect(session.sql.callCount).to.equal(1);
+        expect((session.sql as SinonSpy).callCount).to.equal(1);
       }));
 
     it('should forward query', () => doer
       .count('query', ['value'])
       .then(() => {
-        expect(session.sql.args).to.deep.equal([['query']]);
+        expect((session.sql as SinonSpy).args).to.deep.equal([['query']]);
       }));
 
     it('should call bind', () => doer
@@ -149,13 +147,13 @@ describe('Doer', () => {
       it('should call sql', () => doer
         .select('query', ['value'])
         .then(() => {
-          expect(session.sql.callCount).to.equal(1);
+          expect((session.sql as SinonSpy).callCount).to.equal(1);
         }));
 
       it('should forward query', () => doer
         .select('query', ['value'])
         .then(() => {
-          expect(session.sql.args).to.deep.equal([['query']]);
+          expect((session.sql as SinonSpy).args).to.deep.equal([['query']]);
         }));
 
       it('should call bind', () => doer
@@ -188,13 +186,13 @@ describe('Doer', () => {
       it('should call sql', () => doer
         .select('query', ['value'])
         .then(() => {
-          expect(session.sql.callCount).to.equal(1);
+          expect((session.sql as SinonSpy).callCount).to.equal(1);
         }));
 
       it('should forward query', () => doer
         .select('query', ['value'])
         .then(() => {
-          expect(session.sql.args).to.deep.equal([['query']]);
+          expect((session.sql as SinonSpy).args).to.deep.equal([['query']]);
         }));
 
       it('should call bind', () => doer
@@ -227,13 +225,13 @@ describe('Doer', () => {
     it('should call sql', () => doer
       .insert('query', ['value'])
       .then(() => {
-        expect(session.sql.callCount).to.equal(1);
+        expect((session.sql as SinonSpy).callCount).to.equal(1);
       }));
 
     it('should forward query', () => doer
       .insert('query', ['value'])
       .then(() => {
-        expect(session.sql.args).to.deep.equal([['query']]);
+        expect((session.sql as SinonSpy).args).to.deep.equal([['query']]);
       }));
 
     it('should call bind', () => doer
@@ -265,13 +263,13 @@ describe('Doer', () => {
     it('should call sql', () => doer
       .update('query', ['value'])
       .then(() => {
-        expect(session.sql.callCount).to.equal(1);
+        expect((session.sql as SinonSpy).callCount).to.equal(1);
       }));
 
     it('should forward query', () => doer
       .update('query', ['value'])
       .then(() => {
-        expect(session.sql.args).to.deep.equal([['query']]);
+        expect((session.sql as SinonSpy).args).to.deep.equal([['query']]);
       }));
 
     it('should call bind', () => doer
@@ -303,13 +301,13 @@ describe('Doer', () => {
     it('should call sql', () => doer
       .replace('query', ['value'])
       .then(() => {
-        expect(session.sql.callCount).to.equal(1);
+        expect((session.sql as SinonSpy).callCount).to.equal(1);
       }));
 
     it('should forward query', () => doer
       .replace('query', ['value'])
       .then(() => {
-        expect(session.sql.args).to.deep.equal([['query']]);
+        expect((session.sql as SinonSpy).args).to.deep.equal([['query']]);
       }));
 
     it('should call bind', () => doer
@@ -341,13 +339,13 @@ describe('Doer', () => {
     it('should call sql', () => doer
       .remove('query', ['value'])
       .then(() => {
-        expect(session.sql.callCount).to.equal(1);
+        expect((session.sql as SinonSpy).callCount).to.equal(1);
       }));
 
     it('should forward query', () => doer
       .remove('query', ['value'])
       .then(() => {
-        expect(session.sql.args).to.deep.equal([['query']]);
+        expect((session.sql as SinonSpy).args).to.deep.equal([['query']]);
       }));
 
     it('should call bind', () => doer
@@ -379,13 +377,13 @@ describe('Doer', () => {
     it('should call sql', () => doer
       .submit('query', ['value'])
       .then(() => {
-        expect(session.sql.callCount).to.equal(1);
+        expect((session.sql as SinonSpy).callCount).to.equal(1);
       }));
 
     it('should forward query', () => doer
       .submit('query', ['value'])
       .then(() => {
-        expect(session.sql.args).to.deep.equal([['query']]);
+        expect((session.sql as SinonSpy).args).to.deep.equal([['query']]);
       }));
 
     it('should call bind', () => doer
@@ -418,7 +416,7 @@ describe('Doer', () => {
         it('should close', () => doer
           .submit('query', ['value'])
           .catch(() => {
-            expect(session.close.callCount).to.equal(1);
+            expect((session.close as SinonSpy).callCount).to.equal(1);
           }));
 
         it('should fail', () => doer
@@ -438,7 +436,7 @@ describe('Doer', () => {
         it('should close', () => doer
           .submit('query', ['value'])
           .catch(() => {
-            expect(session.close.callCount).to.equal(1);
+            expect((session.close as SinonSpy).callCount).to.equal(1);
           }));
 
         it('should fail', () => doer

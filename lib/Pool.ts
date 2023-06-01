@@ -1,6 +1,6 @@
-import {getSession, Session} from "@mysql/xdevapi";
-import {Doer} from "./Doer";
-import {PoolOptions} from "./Pool.types";
+import {getSession, Session} from '@mysql/xdevapi';
+import {Doer} from './Doer';
+import {PoolOptions} from './Pool.types';
 
 export class Pool {
 

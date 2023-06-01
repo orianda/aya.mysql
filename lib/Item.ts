@@ -1,5 +1,5 @@
-import {ValueDto} from "aya.mysql.querylizer";
-import {List} from "./List";
+import {ValueDto} from 'aya.mysql.querylizer';
+import {List} from './List';
 
 export class Item<Id extends keyof Data, Data extends Record<string, ValueDto>> {
 
@@ -24,34 +24,34 @@ export class Item<Id extends keyof Data, Data extends Record<string, ValueDto>> 
   set(id: Data[Id], data: Data): Promise<boolean> {
     return this.list
       .replace({...data, [this.id]: id})
-      .then((result) => result > 0);
+      .then((result) => !!result);
   }
 
   add(id: Data[Id], data: Data): Promise<boolean> {
     data[this.id] = id;
     return this.list
       .insert(data)
-      .then((result) => result > 0);
+      .then((result) => !!result);
   }
 
   mod(id: Data[Id], data: Data): Promise<boolean> {
     return this.list
       .update(data, {[this.id]: id}, 1)
-      .then((amount) => amount > 0);
+      .then((amount) => !!amount);
   }
 
   rid(id: Data[Id]): Promise<boolean> {
     return this.list
       .remove({[this.id]: id}, 1)
-      .then((result) => result > 0);
+      .then((result) => !!result);
   }
 
   append(data: Data, generate: (bounce: number) => Data[Id], bounces = 32): Promise<Data[Id]> {
     const id = generate(bounces);
     return this
       .add(id, data)
-      .then(() => id, (error) => {
-        if (error?.code !== 'ER_DUP_ENTRY') {
+      .then(() => id, (error: unknown) => {
+        if (error && (error as {code?: string}).code !== 'ER_DUP_ENTRY') {
           return Promise.reject(error);
         } else if (bounces > 0) {
           return this.append(data, generate, bounces - 1);

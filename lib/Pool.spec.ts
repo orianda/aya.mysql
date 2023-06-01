@@ -1,12 +1,12 @@
-import mysql from "@mysql/xdevapi";
-import {expect} from "chai";
-import {describe} from "mocha";
-import sinon from "sinon";
-import {Doer} from "./Doer";
-import {Pool} from "./Pool";
+import mysql, {Session} from '@mysql/xdevapi';
+import {expect} from 'chai';
+import {describe} from 'mocha';
+import sinon from 'sinon';
+import {Doer} from './Doer';
+import {Pool} from './Pool';
 
 describe('Pool', () => {
-  const session = {};
+  const session: Session = {} as Session;
   let pool: Pool;
 
   beforeEach(() => {

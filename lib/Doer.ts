@@ -1,13 +1,13 @@
-import {Column, Row, SqlResult} from "@mysql/xdevapi";
-import {ValueDto, ValuesItemDto} from "aya.mysql.querylizer";
-import {List} from "./List";
-import {Pool} from "./Pool";
-import {PoolOptions} from "./Pool.types";
+import {Column, Literal, SqlResult} from '@mysql/xdevapi';
+import {ValueDto, ValuesItemDto} from 'aya.mysql.querylizer';
+import {List} from './List';
+import {Pool} from './Pool';
+import {PoolOptions} from './Pool.types';
 
 export class Doer {
 
   constructor(
-    public readonly pool: Pool,
+    public readonly pool: Pool
   ) {
   }
 
@@ -18,65 +18,65 @@ export class Doer {
   count(query: string, values?: ReadonlyArray<string>): Promise<number> {
     return this
       .submit(query, values)
-      .then((result) => result.toArray()[0][0][0]);
+      .then((result) => {
+        const [olga] = result.fetchOne();
+        return isNaN(olga as number) ? NaN : olga as number;
+      });
   }
 
   select<T extends Record<string, ValueDto>>(query: string, values?: ReadonlyArray<string>): Promise<ReadonlyArray<T>> {
     return this
       .submit(query, values)
       .then((result) => {
-        const rows = result.getResults()[0];
-        if (!rows) {
-          return [];
-        }
-
+        const rows = result.fetchAll();
         const cols = result
           .getColumns()
           .map((col: Column) => col.getColumnName());
         return rows
-          .map((row: Row) => {
-            const list = row.toArray();
+          .map((list) => {
             const data: ValuesItemDto = {};
             for (let i = 0, l = cols.length; i < l; i++) {
               const name = cols[i];
-              data[name] = list[i];
+              const value = list[i];
+              data[name] = value instanceof Buffer ? value.toString() : value === null ? undefined : value;
             }
-            return data;
+            return data as T;
           });
       });
   }
 
-  insert(query: string, values?: ReadonlyArray<string>): Promise<number> {
+  insert(query: string, values?: ReadonlyArray<string>): Promise<string | number | bigint> {
     return this
       .submit(query, values)
       .then((result) => result.getAutoIncrementValue());
   }
 
-  update(query: string, values?: ReadonlyArray<string>): Promise<number> {
+  update(query: string, values?: ReadonlyArray<string>): Promise<string | number | bigint> {
     return this
       .submit(query, values)
       .then((result) => result.getAffectedItemsCount());
   }
 
-  replace(query: string, values?: ReadonlyArray<string>): Promise<number> {
+  replace(query: string, values?: ReadonlyArray<string>): Promise<string | number | bigint> {
     return this
       .submit(query, values)
       .then((result) => result.getAffectedItemsCount());
   }
 
-  remove(query: string, values?: ReadonlyArray<string>): Promise<number> {
+  remove(query: string, values?: ReadonlyArray<string>): Promise<string | number | bigint> {
     return this
       .submit(query, values)
       .then((result) => result.getAffectedItemsCount());
   }
 
-  submit(query: string, values?: ReadonlyArray<string>): Promise<SqlResult> {
+  submit(query: string, values: ReadonlyArray<Literal> = []): Promise<SqlResult> {
     return this.pool
       .open()
       .then((session) => {
+        const [arg, ...args] = values;
         const promise1 = session
           .sql(query)
-          .bind(values || [])
+          .bind(arg ?? null, ...args)
           .execute();
         const promise2 = promise1
           .catch(() => undefined)
