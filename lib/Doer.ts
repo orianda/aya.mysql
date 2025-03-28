@@ -38,7 +38,7 @@ export class Doer {
             for (let i = 0, l = cols.length; i < l; i++) {
               const name = cols[i];
               const value = list[i];
-              data[name] = value instanceof Buffer ? value.toString() : value === null ? undefined : value;
+              data[name] = value instanceof Buffer ? value.toString() : value === null ? undefined : value as ValueDto;
             }
             return data as T;
           });

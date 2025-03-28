@@ -1,12 +1,13 @@
-import { AmountDto, NamesDto, OffsetDto, OrderDto, ValueDto, WhereDto } from "aya.mysql.querylizer";
-import { Doer } from "./Doer";
-import { Item } from "./Item";
+import { AmountDto, NamesDto, OffsetDto, OrderDto, ValueDto, WhereDto } from 'aya.mysql.querylizer';
+import { Doer } from './Doer';
+import { Item } from './Item';
+import { PoolOptions } from './Pool.types';
 export declare class List<Data extends Record<string | number, ValueDto>> {
     readonly doer: Doer;
     readonly table: string;
-    readonly schema?: string | undefined;
+    readonly schema?: PoolOptions['schema'];
     private querylize;
-    constructor(doer: Doer, table: string, schema?: string | undefined);
+    constructor(doer: Doer, table: string, schema?: PoolOptions['schema']);
     item<Id extends keyof Data>(id: Id): Item<Id, Data>;
     count(where?: WhereDto, amount?: AmountDto, offset?: OffsetDto): Promise<number>;
     select(names?: NamesDto, where?: WhereDto, amount?: AmountDto, offset?: OffsetDto, order?: OrderDto): Promise<ReadonlyArray<Data>>;

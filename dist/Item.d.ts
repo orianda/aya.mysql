@@ -1,5 +1,5 @@
-import { ValueDto } from "aya.mysql.querylizer";
-import { List } from "./List";
+import { ValueDto } from 'aya.mysql.querylizer';
+import { List } from './List';
 export declare class Item<Id extends keyof Data, Data extends Record<string, ValueDto>> {
     readonly list: List<Data>;
     readonly id: Id;
